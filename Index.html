@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agenda Canin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Mise en page : une colonne, gros boutons, barre d'onglets en bas sur téléphone, en haut sur ordinateur */
+:root {
+  --bg: #F1F4EE; --surface: #FFFFFF; --ink: #1B2520; --muted: #5C6A61; --line: #D9E0D5;
+  --accent: #2C6A4A; --accent-ink: #FFFFFF; --soft: #E1ECE3;
+  --amber: #A86A12; --amber-soft: #F7EAD2; --red: #AE3F33; --red-soft: #F6E0DC;
+  --blue: #3A5F8F; --blue-soft: #E2EAF4;
+  --shadow: 0 1px 2px rgba(27,37,32,.06), 0 4px 16px rgba(27,37,32,.06);
+  --f-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121814; --surface: #1B231E; --ink: #E6EDE8; --muted: #9AA99F; --line: #2B3730;
+    --accent: #72C195; --accent-ink: #0D1A12; --soft: #1F3328;
+    --amber: #E3A94F; --amber-soft: #382B16; --red: #EC8175; --red-soft: #3A2220;
+    --blue: #8FB3E0; --blue-soft: #1E2A3A;
+    --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121814; --surface: #1B231E; --ink: #E6EDE8; --muted: #9AA99F; --line: #2B3730;
+  --accent: #72C195; --accent-ink: #0D1A12; --soft: #1F3328;
+  --amber: #E3A94F; --amber-soft: #382B16; --red: #EC8175; --red-soft: #3A2220;
+  --blue: #8FB3E0; --blue-soft: #1E2A3A;
+  --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.45;
+  -webkit-text-size-adjust: 100%; padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+svg.i { width: 1.2em; height: 1.2em; fill: currentColor; flex: none; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; }
+.demo { background: var(--amber-soft); color: var(--amber); font-size: 14px; text-align: center; padding: 6px 16px; font-weight: 700; }
+
+nav.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); gap: 2px;
+}
+nav.tabs button {
+  background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 2px; border-radius: 12px; color: var(--muted); font-size: 13px; font-weight: 700;
+}
+nav.tabs button svg { width: 26px; height: 26px; }
+nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--soft); }
+nav.tabs button.add svg { background: var(--accent); color: var(--accent-ink); border-radius: 50%; padding: 3px; width: 30px; height: 30px; }
+@media (min-width: 820px) {
+  body { padding-bottom: 32px; }
+  nav.tabs { position: sticky; top: 0; bottom: auto; border-top: 0; border-bottom: 1px solid var(--line);
+    grid-template-columns: repeat(4, auto); justify-content: center; gap: 12px; padding: 8px; }
+  nav.tabs button { flex-direction: row; gap: 8px; padding: 8px 18px; font-size: 16px; }
+  nav.tabs button svg { width: 22px; height: 22px; }
+  nav.tabs button.add svg { width: 24px; height: 24px; }
+}
+
+header.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-block: 20px 12px; flex-wrap: wrap; }
+header.top h1 { font-size: 30px; font-weight: 800; }
+.sub { color: var(--muted); font-size: 15px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 18px;
+  border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; text-decoration: none; color: var(--ink);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.danger { background: var(--red); border-color: var(--red); color: var(--surface); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--accent); padding-inline: 10px; }
+.btn.small { min-height: 40px; padding: 6px 12px; font-size: 15px; }
+.btn.block { width: 100%; }
+.btn[disabled] { opacity: .55; pointer-events: none; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+.weeknav { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.weeknav .lbl { flex: 1; text-align: center; font-weight: 700; }
+.iconbtn { width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; flex: none; }
+.days { display: grid; gap: 14px; }
+.day h2 { font-size: 17px; font-family: var(--f-body); font-weight: 700; color: var(--muted); display: flex; gap: 8px; align-items: baseline; margin-bottom: 6px; }
+.day.today h2 { color: var(--accent); }
+.day.today h2::after { content: "Aujourd'hui"; font-size: 12px; background: var(--accent); color: var(--accent-ink); padding: 2px 8px; border-radius: 99px; letter-spacing: .03em; text-transform: uppercase; }
+.day .empty { color: var(--muted); font-size: 15px; padding: 4px 2px; }
+.day.past .empty { opacity: .6; }
+.list { display: grid; gap: 8px; }
+
+.rdv {
+  display: grid; grid-template-columns: 72px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; box-shadow: var(--shadow);
+}
+.rdv .h { font-family: var(--f-display); font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.rdv .h small { display: block; font-family: var(--f-body); font-size: 13px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+.rdv .who { min-width: 0; }
+.rdv .dog { font-weight: 700; font-size: 18px; }
+.rdv .dog span { font-weight: 400; color: var(--muted); font-size: 15px; }
+.rdv .owner { color: var(--muted); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rdv.coll { border-left: 5px solid var(--blue); }
+.rdv.coll .owner { white-space: normal; }
+.rdv.annule { background: transparent; box-shadow: none; border-style: dashed; }
+.rdv.annule .h, .rdv.annule .dog { text-decoration: line-through; color: var(--muted); }
+.rdv.fait { background: var(--soft); box-shadow: none; }
+.rdv .pills { display: grid; gap: 4px; justify-items: end; }
+
+.pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 99px; font-size: 13px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pill.ok { background: var(--soft); color: var(--accent); }
+.pill.warn { background: var(--amber-soft); color: var(--amber); }
+.pill.bad { background: var(--red-soft); color: var(--red); }
+.pill.blue { background: var(--blue-soft); color: var(--blue); }
+.pill.muted { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+
+.search { width: 100%; min-height: 50px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); padding: 10px 14px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-block: 12px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 6px 14px; font-weight: 700; font-size: 15px; color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.client {
+  display: grid; grid-template-columns: 48px 1fr auto; gap: 12px; align-items: center; width: 100%; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; box-shadow: var(--shadow);
+}
+.client .who { min-width: 0; }
+.client .dog { font-weight: 700; font-size: 18px; }
+.client .dog span { font-weight: 400; color: var(--muted); font-size: 15px; }
+.avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--soft); color: var(--accent); display: grid; place-items: center; font-family: var(--f-display); font-weight: 800; font-size: 20px; }
+.client .left { text-align: right; }
+.client .big { font-family: var(--f-display); font-weight: 800; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
+.client .big.warn { color: var(--amber); } .client .big.bad { color: var(--red); }
+.client .left small { display: block; color: var(--muted); font-size: 12px; }
+
+.back { margin-top: 10px; }
+.hero { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); display: grid; gap: 16px; margin-top: 6px; }
+.hero h1 { font-size: 34px; font-weight: 800; }
+.hero .race { color: var(--muted); font-size: 17px; }
+.contact { display: grid; gap: 4px; font-size: 16px; min-width: 0; overflow-wrap: anywhere; }
+.contact a { color: var(--accent); font-weight: 700; text-decoration: none; font-variant-numeric: tabular-nums; }
+.counter { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; background: var(--soft); border-radius: 16px; padding: 16px; }
+.counter .n { font-family: var(--f-display); font-weight: 800; font-size: 64px; line-height: .9; color: var(--accent); font-variant-numeric: tabular-nums; }
+.counter .n.warn { color: var(--amber); } .counter .n.bad { color: var(--red); }
+.counter .lab { font-weight: 700; }
+.counter .lab small { display: block; font-weight: 400; color: var(--muted); font-size: 14px; }
+.paws { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.paws svg { width: 22px; height: 22px; }
+.paws .fait { fill: var(--accent); }
+.paws .prevu { fill: var(--amber); opacity: .8; }
+.paws .demi { opacity: .45; }
+.paws .libre { fill: none; stroke: var(--muted); stroke-width: 1.2; opacity: .6; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin-top: 6px; }
+.legend b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.section { margin-top: 26px; }
+.section h2 { font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hist { display: grid; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.hist .it { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 12px 14px; border: 0; border-top: 1px solid var(--line); align-items: center; background: none; text-align: left; width: 100%; }
+.hist .it:first-child { border-top: 0; }
+.hist .it .d { font-variant-numeric: tabular-nums; min-width: 0; }
+.hist .it .d small { display: block; color: var(--muted); font-size: 13px; }
+.hist .it .amt { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.note { font-size: 15px; color: var(--muted); background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r); padding: 14px; }
+.alert { background: var(--amber-soft); color: var(--amber); border-radius: 12px; padding: 12px 14px; font-weight: 700; font-size: 15px; }
+.dogchips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+form, .form { display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label, .field .lab { font-weight: 700; font-size: 15px; }
+.field input, .field select, .field textarea {
+  width: 100%; min-height: 50px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); padding: 10px 14px;
+}
+.field textarea { min-height: 80px; resize: vertical; }
+/* iPhone : les champs date/heure gardent leur largeur naturelle si on ne les force pas */
+.field input, .field select { min-width: 0; max-width: 100%; }
+input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
+input::-webkit-date-and-time-value { text-align: left; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 480px) { .two.stack, .three { grid-template-columns: 1fr; } }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: none; min-height: 44px; border-radius: 10px; font-weight: 700; color: var(--muted); padding-inline: 2px; font-size: 15px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seg.cinq button { font-size: 13px; letter-spacing: -.01em; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); display: grid; gap: 16px; }
+.sub-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 14px; background: var(--bg); }
+.hint { font-size: 14px; color: var(--muted); }
+.check { display: flex; gap: 10px; align-items: center; font-weight: 700; }
+.check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+
+.picker { display: grid; gap: 6px; max-height: 320px; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; padding: 6px; background: var(--surface); margin-top: 6px; }
+.picker button { display: flex; justify-content: space-between; gap: 8px; text-align: left; border: 0; background: none; padding: 10px; border-radius: 10px; }
+.picker button:hover { background: var(--soft); }
+.picker button span { color: var(--muted); font-size: 14px; }
+.sel-list { display: grid; gap: 8px; }
+.sel { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 8px; background: var(--surface); }
+.sel .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sel .top b span { font-weight: 400; color: var(--muted); font-size: 14px; }
+.sel .opts { display: grid; grid-template-columns: 1fr 90px 1fr; gap: 8px; }
+.sel .opts select, .sel .opts input { min-height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); padding: 6px 10px; width: 100%; min-width: 0; }
+@media (max-width: 480px) { .sel .opts { grid-template-columns: 1fr 80px; } .sel .opts .md { grid-column: 1 / -1; } }
+.x { border: 0; background: none; color: var(--red); font-weight: 700; padding: 6px 8px; border-radius: 8px; }
+
+.total { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); display: grid; gap: 10px; }
+.total .n { font-family: var(--f-display); font-size: 44px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.overlay { position: fixed; inset: 0; background: rgba(10,15,12,.45); z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+.sheet {
+  background: var(--bg); width: 100%; max-width: 560px; border-radius: 22px 22px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+  max-height: 92vh; overflow-y: auto; display: grid; gap: 14px;
+}
+@media (min-width: 820px) { .overlay { align-items: center; } .sheet { border-radius: 22px; } }
+.sheet h3 { font-size: 22px; }
+.sheet .acts { display: grid; gap: 10px; }
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 50;
+  background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 12px; font-weight: 700; max-width: calc(100% - 32px); box-shadow: var(--shadow);
+}
+.loading { padding: 60px 0; text-align: center; color: var(--muted); }
+.busy { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: var(--accent); z-index: 60; animation: busy 1s ease-in-out infinite alternate; transform-origin: left; }
+@keyframes busy { from { transform: scaleX(.1); } to { transform: scaleX(.9); } }
+@media (prefers-reduced-motion: no-preference) { .sheet { animation: up .18s ease-out; } @keyframes up { from { transform: translateY(24px); opacity: .6; } } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="paw" viewBox="0 0 24 24"><ellipse cx="5.5" cy="10" rx="2.1" ry="2.7"/><ellipse cx="9.3" cy="5.6" rx="2.1" ry="2.7"/><ellipse cx="14.7" cy="5.6" rx="2.1" ry="2.7"/><ellipse cx="18.5" cy="10" rx="2.1" ry="2.7"/><path d="M12 11.2c-3 0-6.2 3.6-6.2 6.3 0 2.2 1.9 2.8 3.5 2.8 1.1 0 1.8-.6 2.7-.6s1.6.6 2.7.6c1.6 0 3.5-.6 3.5-2.8 0-2.7-3.2-6.3-6.2-6.3z"/></symbol>
+  <symbol id="cal" viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h2a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V2zm12 8H5v9h14v-9zM5 8h14V6H5v2z"/></symbol>
+  <symbol id="people" viewBox="0 0 24 24"><path d="M9 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 2c3.3 0 7 1.7 7 4v2H2v-2c0-2.3 3.7-4 7-4zm7.5-2.2a3.3 3.3 0 0 0 0-6.6 5.5 5.5 0 0 1 0 6.6zM18 14.2c2.3.5 4 1.7 4 3.3V20h-4v-2c0-1.5-.7-2.8-1.8-3.8h1.8z"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></symbol>
+  <symbol id="euro" viewBox="0 0 24 24"><path d="M15 18.5c-2.5 0-4.7-1.4-5.7-3.5H15v-2H8.7a6 6 0 0 1 0-2H15V9H9.3c1-2.1 3.2-3.5 5.7-3.5 1.6 0 3 .6 4.1 1.5L20.5 5.5A8.4 8.4 0 0 0 15 3.5 8.5 8.5 0 0 0 7.1 9H4v2h2.6a8 8 0 0 0 0 2H4v2h3.1a8.5 8.5 0 0 0 7.9 5.5c2.1 0 4-.8 5.5-2l-1.4-1.5c-1.1.9-2.5 1.5-4.1 1.5z"/></symbol>
+  <symbol id="left" viewBox="0 0 24 24"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></symbol>
+  <symbol id="right" viewBox="0 0 24 24"><path d="M8.6 5.4 10 4l8 8-8 8-1.4-1.4 6.6-6.6z"/></symbol>
+</svg>
+
+<div id="demo" class="demo" hidden>Mode démo : exemples fictifs, rien n'est enregistré en ligne</div>
+<nav class="tabs" aria-label="Sections">
+  <button type="button" data-tab="agenda"><svg class="i"><use href="#cal"/></svg>Agenda</button>
+  <button type="button" data-tab="clients"><svg class="i"><use href="#people"/></svg>Clients</button>
+  <button type="button" data-tab="ajouter" class="add"><svg class="i"><use href="#plus"/></svg>Ajouter</button>
+  <button type="button" data-tab="recettes"><svg class="i"><use href="#euro"/></svg>Recettes</button>
+</nav>
+<main id="app" class="wrap"><div class="loading">Chargement de l'agenda…</div></main>
+<div id="modal"></div>
+<div id="toast" class="toast" hidden role="status"></div>
+<div id="busy" class="busy" hidden></div>
+
+<script>
+
+/* ============ Réglages : tarifs par défaut (modifiables à chaque saisie) ============ */
+const TARIFS = {
+  forfait: { 'Éducation': { 10: 450, 5: 250 }, 'Agility': { 10: 234, 5: 255 } },
+  seanceIndividuelle: 45,
+  seanceCollective: 42,
+  chiot: 15,
+  detente: 12
+};
+const MODES = ['Chèque', 'Espèces', 'Virement', 'Wero', 'CB'];
+const CATEGORIES = ['Détente', 'Friandises', 'Harnais', 'École des chiots', 'Cours collectif', 'Cours', 'Forfait', 'Autre'];
+const TITRES_COLL = ['Cours collectif', 'Agility', 'École des chiots', 'Détente'];
+const PERIODES = [
+{ mois: [2, 3, 4], nom: 'Février - Mars - Avril' },
+{ mois: [5, 6, 7], nom: 'Mai - Juin - Juillet' },
+{ mois: [8, 9, 10], nom: 'Août - Septembre - Octobre' },
+{ mois: [11, 12, 1], nom: 'Novembre - Décembre - Janvier' }];
+
+const FORMULES = { forfait: 'Forfait', seance: 'Séance', chiot: 'Chiot', detente: 'Détente', offert: 'Offert' };
+// Formules payées à l'unité (prix + mode de paiement), jamais déduites d'un forfait
+const payant = (f) => f === 'seance' || f === 'chiot' || f === 'detente';
+const CAT_FORMULE = { chiot: 'École des chiots', detente: 'Détente' };
+const TABLES = ['Clients', 'Chiens', 'Forfaits', 'Seances', 'Participations', 'Recettes'];
+
+/* ============ Accès aux données ============ */
+const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+function call(fn, ...args) {
+  if (IS_GAS) return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
+  return new Promise((res, rej) => setTimeout(() => {try {res(Demo[fn](...args));} catch (e) {rej(e);}}, 150));
+}
+
+/* Mode démo (aperçu hors Google) : données d'exemple gardées dans le navigateur */
+const Demo = (() => {
+  const KEY = 'agendaCaninDemo3';
+  let db = null;
+  const rel = (days, h = 10) => {const x = new Date();x.setDate(x.getDate() + days);x.setHours(h, 0, 0, 0);return toStr(x);};
+  function seed() {
+    const T = Object.fromEntries(TABLES.map((t) => [t, []]));
+    const c = (id, nom, telephone, ville) => T.Clients.push({ id, nom, telephone, email: '', adresse: '', cp: '', ville, notes: '' });
+    const d = (id, clientId, nom, race, naissance = '') => T.Chiens.push({ id, clientId, nom, race, naissance, notes: '' });
+    c('c1', 'Dupont Julie', '06 12 34 56 78', 'Laval');d('d1', 'c1', 'Rex', 'Berger Australien', '2025-03-02');
+    c('c2', 'Lefèvre Marc', '07 81 22 90 14', 'Changé');d('d2', 'c2', 'Nala', 'Labrador', '2024-11-20');
+    c('c3', 'Martin Sophie', '06 45 67 12 03', "L'Huisserie");d('d3', 'c3', 'Pistache', 'Jack Russell', '2026-05-10');
+    c('c4', 'Bernard Luc', '06 98 11 45 30', 'Louverné');d('d4', 'c4', 'Oslo', 'Border Collie');
+    c('c5', 'Moreau Claire', '06 22 41 07 55', 'Laval');d('d5', 'c5', 'Pepsi', 'Bouledogue Français');
+    const f = (id, chienId, nb, libelle, days, montant, mode) => {
+      const date = rel(days).slice(0, 10);
+      T.Forfaits.push({ id, chienId, nbCours: String(nb), libelle, date, note: '' });
+      const dog = T.Chiens.find((x) => x.id === chienId);
+      T.Recettes.push({ id: 'r' + id, date, categorie: 'Forfait', clientId: dog.clientId, chienId, forfaitId: id, libelle: "Forfait " + nb + " cours " + libelle.toLowerCase(), nbCours: String(nb), mode, cheques: mode === 'Chèque' ? '8852968' : '', montant: String(montant), note: '' });
+    };
+    f('f1', 'd1', 10, 'Éducation', -30, 450, 'Chèque');f('f2', 'd2', 10, 'Éducation', -65, 450, 'Espèces');f('f4', 'd4', 10, 'Éducation', -80, 450, 'Chèque');
+    let k = 0;
+    const s = (days, h, type, titre, parts, st = 'prevu') => {
+      const id = 's' + ++k;
+      T.Seances.push({ id, debut: rel(days, h), duree: '60', type, titre, statut: st, eventId: '', source: '', note: '' });
+      parts.forEach(([chienId, formule, prix = '', pst = 'prevu']) => T.Participations.push({ id: 'p' + k + chienId, seanceId: id, chienId, formule, statut: pst, prix: String(prix), mode: prix ? 'Espèces' : '', note: '' }));
+    };
+    [-28, -21, -14, -10].forEach((x) => s(x, 10, 'individuel', '', [['d1', 'forfait']]));
+    s(-7, 10, 'individuel', '', [['d1', 'forfait']], 'annule');
+    s(1, 10, 'individuel', '', [['d1', 'forfait']]);s(8, 10, 'individuel', '', [['d1', 'forfait']]);
+    [-60, -53, -46, -39, -32, -25, -18, -11].forEach((x) => s(x, 14, 'individuel', '', [['d2', 'forfait']]));
+    s(0, 17, 'individuel', '', [['d2', 'forfait']]);
+    [-75, -68, -61, -54, -47, -40, -33, -26, -19, -12].forEach((x) => s(x, 11, 'individuel', '', [['d4', 'forfait']]));
+    const sat = 6 - new Date().getDay();
+    s(sat - 7, 10, 'collectif', 'Cours collectif', [['d2', 'forfait'], ['d3', 'chiot', 15], ['d5', 'seance', 42], ['d4', 'seance', 42, 'annule']]);
+    s(sat, 10, 'collectif', 'Cours collectif', [['d1', 'forfait'], ['d3', 'chiot', 15], ['d5', 'seance', 42]]);
+    s(sat, 11, 'collectif', 'Agility', [['d4', 'seance', 42]]);
+    s(2, 15, 'individuel', '', [['d3', 'seance', 45]]);
+    T.Recettes.push({ id: 'rx1', date: rel(-5).slice(0, 10), categorie: 'Friandises', clientId: '', chienId: '', forfaitId: '', libelle: 'Garnier Anne · 2 × 12 €', nbCours: '', mode: 'Espèces', cheques: '', montant: '24', note: '' });
+    T.Recettes.push({ id: 'rx2', date: rel(-3).slice(0, 10), categorie: 'Détente', clientId: '', chienId: '', forfaitId: '', libelle: 'Filou (Beagle)', nbCours: '', mode: 'Espèces', cheques: '', montant: '12', note: '' });
+    return T;
+  }
+  function load() {if (db) return db;try {db = JSON.parse(localStorage.getItem(KEY));} catch (e) {}if (!db) db = seed();return db;}
+  function out() {try {localStorage.setItem(KEY, JSON.stringify(db));} catch (e) {}return Object.assign(JSON.parse(JSON.stringify(db)), { meta: { demo: true, importFait: !!db.importFait } });}
+  return {
+    getData() {load();return out();},
+    save(changes, deletes) {
+      load();
+      Object.entries(deletes || {}).forEach(([t, ids]) => {db[t] = db[t].filter((r) => !ids.includes(r.id));});
+      Object.entries(changes || {}).forEach(([t, rows]) => rows.forEach((o) => {
+        const cur = db[t].find((r) => r.id === o.id);
+        cur ? Object.assign(cur, o) : db[t].push(Object.assign({}, o));
+      }));
+      return out();
+    },
+    importHistorique(p) {
+      load();
+      if (db.importFait) throw new Error('L’historique a déjà été importé.');
+      if (!p || p.format !== 'agenda-canin-import-1') throw new Error('Ce fichier n’est pas un fichier d’historique Agenda Canin.');
+      TABLES.forEach((t) => (p.tables[t] || []).forEach((o) => db[t].push(o)));
+      db.importFait = true;
+      return out();
+    },
+    appliquerMaj(p) {
+      if (!p || p.format !== 'agenda-canin-maj-1') throw new Error('Ce fichier n’est pas un fichier de mise à jour Agenda Canin.');
+      db.majs = db.majs || [];
+      if (db.majs.includes(p.id)) throw new Error('Cette mise à jour a déjà été appliquée.');
+      const r = this.save(p.changes, p.deletes);db.majs.push(p.id);return out();
+    },
+    infoVersion() {return { actuelle: 'démo', derniere: null };},
+    mettreAJour() {throw new Error('La mise à jour se fait dans l’appli installée sur Google.');},
+    majCahier() {throw new Error('Le fichier Excel sera disponible une fois l’appli installée sur Google.');}
+  };
+})();
+
+/* ============ Outils ============ */
+const pad = (n) => String(n).padStart(2, '0');
+const toStr = (d) => d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+function parse(s) {const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/);return m ? new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0)) : new Date(NaN);}
+function addDaysStr(s, n) {const d = parse(s);d.setDate(d.getDate() + n);return toStr(d);}
+const today = () => toStr(new Date()).slice(0, 10);
+const dayKey = (d) => toStr(d).slice(0, 10);
+const fDay = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+const fShort = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+const fDate = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+const fMonth = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' });
+const fdate = (s) => {const d = parse(s);return isNaN(d) ? '?' : fDate.format(d);};
+const euros = (n) => (Math.round((Number(n) || 0) * 100) / 100).toLocaleString('fr-FR') + ' €';
+const hm = (s) => s.slice(11, 16).replace(':', 'h');
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+const uid = (p) => p + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const opts = (list, sel) => list.map((v) => "<option " + (v === sel ? 'selected' : '') + ">" + esc(v) + "</option>").join('');
+const heure = (s) => s.source === 'import' ? '—' : hm(s.debut);
+
+/* ============ Règles des cours ============ */
+// Une participation est « annulée » si elle ou la séance est annulée ;
+// « effectuée » dès que l'heure de fin est passée ; sinon « à venir ».
+function statutS(s) {
+  if (!s || s.statut === 'annule') return 'annule';
+  return parse(s.debut).getTime() + (Number(s.duree) || 60) * 60000 <= Date.now() ? 'fait' : 'avenir';
+}
+function statutP(p) {return p.statut === 'annule' ? 'annule' : statutS(I.seances[p.seanceId]);}
+const I = {}; // index recalculés à chaque chargement
+function reindex() {
+  const D = S.data,by = (list, k) => {const o = {};list.forEach((x) => (o[x[k]] = o[x[k]] || []).push(x));return o;};
+  I.clients = Object.fromEntries(D.Clients.map((x) => [x.id, x]));
+  I.chiens = Object.fromEntries(D.Chiens.map((x) => [x.id, x]));
+  I.seances = Object.fromEntries(D.Seances.map((x) => [x.id, x]));
+  I.partsBySeance = by(D.Participations, 'seanceId');
+  I.partsByDog = by(D.Participations, 'chienId');
+  I.dogsByClient = by(D.Chiens, 'clientId');
+  I.forfaitsByDog = by(D.Forfaits, 'chienId');
+  // Répartition des cours « forfait » dans les forfaits du chien, dans l'ordre des dates
+  I.alloc = {};
+  Object.entries(I.partsByDog).forEach(([dogId, parts]) => {
+    const list = parts.filter((p) => p.formule === 'forfait' && I.seances[p.seanceId] && statutP(p) !== 'annule').
+    sort((a, b) => I.seances[a.seanceId].debut.localeCompare(I.seances[b.seanceId].debut));
+    const fs = forfaitsOf(dogId);
+    let fi = 0,n = 0,ind = 0,co = 0;
+    list.forEach((p) => {
+      while (fi < fs.length && n >= (Number(fs[fi].nbCours) || 10)) {fi++;n = 0;ind = 0;co = 0;}
+      if (fi >= fs.length) {I.alloc[p.id] = { forfait: null, n: 0 };return;}
+      const w = poids(p);
+      if (I.seances[p.seanceId].type === 'collectif') co += w;else ind += w;
+      n += w;
+      I.alloc[p.id] = { forfait: fs[fi], n, ind, co };
+    });
+  });
+}
+const forfaitsOf = (dogId) => (I.forfaitsByDog[dogId] || []).slice().sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id));
+const seanceOf = (p) => I.seances[p.seanceId];
+// Une séance individuelle de 30 min (ou moins) compte pour ½ cours du forfait
+const poids = (p) => {const s = I.seances[p.seanceId];return s && s.type !== 'collectif' && (Number(s.duree) || 60) <= 30 ? 0.5 : 1;};
+const nb2 = (n) => String(Math.round(n * 2) / 2).replace('.', ',');
+const somme = (list) => list.reduce((a, p) => a + poids(p), 0);
+const partsOf = (dogId) => (I.partsByDog[dogId] || []).filter((p) => seanceOf(p)).sort((a, b) => seanceOf(a).debut.localeCompare(seanceOf(b).debut));
+
+function dogStats(dogId) {
+  const parts = partsOf(dogId);
+  const fs = forfaitsOf(dogId).map((f) => {
+    const mine = parts.filter((p) => I.alloc[p.id] && I.alloc[p.id].forfait === f);
+    const faits = mine.filter((p) => statutP(p) === 'fait');
+    return { f, nb: Number(f.nbCours) || 10, fait: somme(faits), avenir: somme(mine.filter((p) => statutP(p) === 'avenir')),
+      faitCo: somme(faits.filter((p) => seanceOf(p).type === 'collectif')), faitInd: somme(faits.filter((p) => seanceOf(p).type !== 'collectif')) };
+  });
+  const cur = fs.find((x) => x.fait < x.nb) || fs[fs.length - 1] || null;
+  const hors = parts.filter((p) => p.formule === 'forfait' && statutP(p) !== 'annule' && I.alloc[p.id] && !I.alloc[p.id].forfait);
+  const libres = fs.reduce((a, x) => a + Math.max(x.nb - x.fait - x.avenir, 0), 0); // cours encore à planifier
+  return {
+    parts, fs, cur, hors, libres,
+    restant: cur ? fs.reduce((a, x) => a + Math.max(x.nb - x.fait, 0), 0) : null,
+    restantCur: cur ? Math.max(cur.nb - cur.fait, 0) : null,
+    avenir: parts.filter((p) => statutP(p) === 'avenir'),
+    passe: parts.filter((p) => statutP(p) !== 'avenir').reverse()
+  };
+}
+// « 4 ind. + 3 co. » : répartition des cours du forfait jusqu'à ce cours inclus
+function repartition(p) {
+  const a = I.alloc[p.id];
+  if (!a || !a.forfait || statutP(p) === 'annule') return '';
+  return nb2(a.ind) + ' ind. + ' + nb2(a.co) + ' co.' + (poids(p) < 1 ? ' · ½ h' : '');
+}
+const level = (n) => n <= 0 ? 'bad' : n <= 2 ? 'warn' : 'ok';
+const clientOfDog = (d) => I.clients[d && d.clientId] || { nom: '' };
+function formulePill(p) {
+  const st = statutP(p);
+  if (st === 'annule') return '<span class="pill bad">Annulé</span>';
+  if (p.formule === 'forfait') {
+    const a = I.alloc[p.id];
+    if (!a || !a.forfait) return '<span class="pill warn">Hors forfait</span>';
+    return "<span class=\"pill " + (st === 'fait' ? 'ok' : 'muted') + "\">" + (st === 'fait' ? '✓ ' : '') + "Cours " + nb2(a.n) + "/" + esc(a.forfait.nbCours) + "</span>";
+  }
+  const prix = Number(p.prix) > 0 ? ' · ' + euros(p.prix) : '';
+  return "<span class=\"pill " + (p.formule === 'offert' ? 'muted' : 'blue') + "\">" + (st === 'fait' ? '✓ ' : '') + (FORMULES[p.formule] || esc(p.formule)) + prix + "</span>";
+}
+// Formule proposée par défaut pour un chien
+function defaultFormule(dogId, titre) {
+  if (titre === 'École des chiots') return 'chiot';
+  if (titre === 'Détente') return 'detente';
+  if (!dogId) return 'forfait';
+  return forfaitsOf(dogId).length ? 'forfait' : 'seance';
+}
+const defaultPrix = (formule, type) => formule === 'chiot' ? TARIFS.chiot : formule === 'detente' ? TARIFS.detente : formule === 'seance' ? type === 'collectif' ? TARIFS.seanceCollective : TARIFS.seanceIndividuelle : '';
+function periodeOf(dateStr) {
+  const m = +dateStr.slice(5, 7),y = +dateStr.slice(0, 4);
+  const pi = PERIODES.findIndex((p) => p.mois.includes(m));
+  return { key: (pi === 3 && m === 1 ? y - 1 : y) * 10 + pi };
+}
+const periodeNom = (key) => {const pi = key % 10,y = Math.floor(key / 10);return PERIODES[pi].nom + ' ' + y + (pi === 3 ? '/' + (y + 1) : '');};
+function shiftPeriode(key, n) {let pi = key % 10 + n,y = Math.floor(key / 10);while (pi > 3) {pi -= 4;y++;}while (pi < 0) {pi += 4;y--;}return y * 10 + pi;}
+// Toutes les recettes : saisies + séances payées à l'unité déjà effectuées
+function toutesRecettes() {
+  const out = S.data.Recettes.map((r) => Object.assign({}, r));
+  S.data.Participations.forEach((p) => {
+    if (!payant(p.formule) || !(Number(p.prix) > 0) || statutP(p) !== 'fait') return;
+    const s = seanceOf(p),d = I.chiens[p.chienId] || {};
+    out.push({ id: 'p-' + p.id, date: s.debut.slice(0, 10), categorie: CAT_FORMULE[p.formule] || (s.type === 'collectif' ? 'Cours collectif' : 'Cours'),
+      clientId: d.clientId, chienId: p.chienId, libelle: { chiot: 'Cours chiot', detente: 'Détente' }[p.formule] || 'Cours à la séance', mode: p.mode, cheques: '', montant: p.prix });
+  });
+  return out;
+}
+
+/* ============ État & navigation ============ */
+const S = { data: null, meta: {}, view: 'agenda', week: 0, dogId: null, q: '', filtre: 'actifs', prefill: null, periode: null, liens: null };
+const appEl = document.getElementById('app');
+function go(view, o = {}) {Object.assign(S, { view }, o);render();window.scrollTo(0, 0);}
+document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => {
+  const t = b.dataset.tab;
+  go(t, t === 'ajouter' ? { prefill: null } : t === 'agenda' ? { week: 0 } : {});
+}));
+function render() {
+  document.querySelectorAll('nav.tabs button').forEach((b) => {
+    const on = b.dataset.tab === S.view || S.view === 'fiche' && b.dataset.tab === 'clients';
+    on ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current');
+  });
+  if (!S.data) return;
+  ({ agenda: viewAgenda, clients: viewClients, ajouter: viewAjouter, fiche: viewFiche, recettes: viewRecettes })[S.view]();
+}
+function setData(d) {
+  S.data = Object.fromEntries(TABLES.map((t) => [t, d[t] || []]));
+  S.meta = d.meta || {};
+  if (S.meta.excel) S.liens = { excel: S.meta.excel, cahier: S.meta.cahier };
+  reindex();
+}
+// Enregistre des changements puis rafraîchit l'écran
+function commit(changes, deletes, msg, after) {
+  document.getElementById('busy').hidden = false;
+  return call('save', changes || {}, deletes || {}).then((d) => {
+    setData(d);closeModal();
+    if (msg) toast(msg);
+    after ? after() : render();
+  }).catch((e) => toast(e && e.message || 'Une erreur est survenue. Réessaie dans un instant.')).
+  finally(() => {document.getElementById('busy').hidden = true;});
+}
+let toastT;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;t.hidden = false;
+  clearTimeout(toastT);toastT = setTimeout(() => {t.hidden = true;}, 3500);
+}
+
+/* ============ Agenda ============ */
+function monday(offset) {const d = new Date();d.setHours(0, 0, 0, 0);d.setDate(d.getDate() - (d.getDay() + 6) % 7 + 7 * offset);return d;}
+function seanceCard(s, opt = {}) {
+  const parts = I.partsBySeance[s.id] || [];
+  const st = statutS(s);
+  let who, pills;
+  if (s.type === 'collectif') {
+    const presents = parts.filter((p) => p.statut !== 'annule');
+    who = "<div class=\"dog\">" + esc(s.titre || 'Cours collectif') + " <span>\xB7 " + presents.length + " chien" + (presents.length > 1 ? 's' : '') + "</span></div>\n      <div class=\"owner\">" + (
+    presents.map((p) => esc((I.chiens[p.chienId] || {}).nom)).join(', ') || 'Aucun chien inscrit') + "</div>";
+    pills = st === 'annule' ? '<span class="pill bad">Annulé</span>' : '<span class="pill blue">Collectif</span>';
+  } else {
+    const p = parts[0],d = I.chiens[p && p.chienId] || {};
+    who = "<div class=\"dog\">" + esc(d.nom || '?') + " <span>" + esc(d.race || '') + "</span></div><div class=\"owner\">" + esc(clientOfDog(d).nom) + (s.titre ? ' · ' + esc(s.titre) : '') + "</div>";
+    pills = p ? formulePill(p) + (repartition(p) ? "<span class=\"hint\" style=\"font-size:12px\">" + repartition(p) + "</span>" : '') : '';
+  }
+  return "<button type=\"button\" class=\"rdv " + st + " " + (s.type === 'collectif' ? 'coll' : '') + "\" data-seance=\"" + s.id + "\">\n    <div class=\"h\">" +
+  heure(s) + "<small>" + (opt.withDate ? esc(fdate(s.debut)) : s.source === 'import' ? 'importé' : esc(s.duree) + ' min') + "</small></div>\n    <div class=\"who\">" +
+  who + "</div><div class=\"pills\">" + pills + "</div></button>";
+}
+function viewAgenda() {
+  const start = monday(S.week),end = new Date(start);end.setDate(end.getDate() + 7);
+  const t = today();
+  const seances = S.data.Seances.filter((s) => {const d = parse(s.debut);return d >= start && d < end;}).sort((a, b) => a.debut.localeCompare(b.debut));
+  const auj = S.data.Seances.filter((s) => s.debut.startsWith(t) && s.statut !== 'annule');
+  let days = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);d.setDate(d.getDate() + i);
+    const k = dayKey(d),list = seances.filter((s) => s.debut.startsWith(k));
+    if (!list.length && i === 6) continue;
+    days += "<section class=\"day " + (k === t ? 'today' : '') + " " + (k < t ? 'past' : '') + "\"><h2>" + esc(cap(fDay.format(d))) + "</h2>\n      " + (
+    list.length ? "<div class=\"list\">" + list.map((s) => seanceCard(s)).join('') + "</div>" : '<div class="empty">Aucun cours</div>') + "</section>";
+  }
+  const endShown = new Date(end);endShown.setDate(endShown.getDate() - 1);
+  const lbl = { 0: 'Cette semaine', 1: 'Semaine prochaine', '-1': 'Semaine dernière' }[S.week] || 'Semaine';
+  appEl.innerHTML = "\n    <header class=\"top\"><div><h1>Agenda</h1><div class=\"sub\">" + (
+  auj.length ? auj.length + " s\xE9ance" + (auj.length > 1 ? 's' : '') + " aujourd'hui" : "Pas de cours aujourd'hui") + "</div></div>\n      <button type=\"button\" class=\"btn primary\" data-act=\"new\"><svg class=\"i\"><use href=\"#plus\"/></svg>Rendez-vous</button></header>\n    <div class=\"weeknav\">\n      <button type=\"button\" class=\"iconbtn\" data-week=\"-1\" aria-label=\"Semaine pr\xE9c\xE9dente\"><svg class=\"i\"><use href=\"#left\"/></svg></button>\n      <div class=\"lbl\">" +
+
+
+
+  lbl + "<div class=\"sub\">du " + fMonth.format(start) + " au " + fMonth.format(endShown) + "</div></div>\n      <button type=\"button\" class=\"iconbtn\" data-week=\"1\" aria-label=\"Semaine suivante\"><svg class=\"i\"><use href=\"#right\"/></svg></button>\n    </div>\n    " + (
+
+
+  majDispo() ? "<div class=\"alert\" style=\"margin-bottom:14px;background:var(--soft);color:var(--accent)\">Une nouvelle version de l'appli est disponible." + (S.version.derniere.notes ? '<br><span style="font-weight:400">' + esc(S.version.derniere.notes) + '</span>' : '') + "<br><button type=\"button\" class=\"btn small primary\" data-act=\"maj\" style=\"margin-top:8px\">Mettre \xE0 jour l'appli</button></div>" : '') + "\n    " + (
+  S.meta && !S.meta.importFait && !S.meta.demo ? "<div class=\"alert\" style=\"margin-bottom:14px\">Les clients et cours 2025-2026 ne sont pas encore import\xE9s.<br><button type=\"button\" class=\"btn small\" data-act=\"goimport\" style=\"margin-top:8px\">Importer l'historique</button></div>" : '') + "\n    " + (
+  S.week !== 0 ? '<div class="row" style="justify-content:center;margin-bottom:12px"><button type="button" class="btn small" data-week="0">Revenir à cette semaine</button></div>' : '') + "\n    <div class=\"days\">" +
+  days + "</div>";
+  appEl.querySelectorAll('[data-week]').forEach((b) => b.addEventListener('click', () => {S.week = b.dataset.week === '0' ? 0 : S.week + Number(b.dataset.week);render();}));
+  appEl.querySelector('[data-act="new"]').addEventListener('click', () => go('ajouter', { prefill: null }));
+  const mj = appEl.querySelector('[data-act="maj"]');
+  if (mj) mj.addEventListener('click', (e) => majAppli(e.currentTarget));
+  const gi = appEl.querySelector('[data-act="goimport"]');
+  if (gi) gi.addEventListener('click', () => {go('recettes');setTimeout(() => {const z = document.getElementById('imp');if (z) z.scrollIntoView({ block: 'center' });}, 50);});
+  bindSeances();
+}
+function bindSeances() {appEl.querySelectorAll('[data-seance]').forEach((b) => b.addEventListener('click', () => seanceSheet(b.dataset.seance)));}
+
+/* ============ Clients (un chien par ligne) ============ */
+function isActif(st) {
+  if (st.avenir.length || st.cur && st.restant > 0) return true;
+  const last = st.parts[st.parts.length - 1];
+  return !!last && Date.now() - parse(seanceOf(last).debut) < 90 * 864e5;
+}
+function viewClients() {
+  const q = norm(S.q.trim());
+  let dogs = S.data.Chiens.map((d) => ({ d, c: clientOfDog(d), st: dogStats(d.id) }));
+  if (q) dogs = dogs.filter(({ d, c }) => norm([d.nom, d.race, c.nom, c.telephone, c.ville].join(' ')).includes(q));else
+  if (S.filtre === 'actifs') dogs = dogs.filter((x) => isActif(x.st));else
+  if (S.filtre === 'finir') dogs = dogs.filter((x) => x.st.cur && x.st.restant <= 2 && isActif(x.st));
+  dogs.sort((a, b) => (a.c.nom + a.d.nom).localeCompare(b.c.nom + b.d.nom, 'fr'));
+  const card = ({ d, c, st }) => {
+    let right;
+    if (st.cur) right = "<div class=\"big " + level(st.restant) + "\">" + nb2(st.restant) + "</div><small>" + (st.restant <= 0 ? 'forfait fini' : 'restant' + (st.restant > 1 ? 's' : '')) + "</small>";else
+    right = "<span class=\"pill blue\">" + (st.parts.length && st.parts.every((p) => p.formule === 'detente') ? 'Détente' : st.parts.some((p) => p.formule === 'chiot') ? 'Chiot' : 'À la séance') + "</span>";
+    const next = st.avenir[0] ? " \xB7 prochain le " + esc(fMonth.format(parse(seanceOf(st.avenir[0]).debut))) : '';
+    return "<button type=\"button\" class=\"client\" data-dog=\"" + d.id + "\">\n      <div class=\"avatar\">" +
+    esc((d.nom || '?').charAt(0).toUpperCase()) + "</div>\n      <div class=\"who\"><div class=\"dog\">" +
+    esc(d.nom) + " <span>" + esc(d.race || '') + "</span></div><div class=\"sub\">" + esc(c.nom) + next + "</div></div>\n      <div class=\"left\">" +
+    right + "</div></button>";
+  };
+  const LIMIT = 60;
+  appEl.innerHTML = "\n    <header class=\"top\"><div><h1>Clients</h1><div class=\"sub\">" +
+  S.data.Chiens.length + " chiens \xB7 " + S.data.Clients.length + " propri\xE9taires</div></div>\n      <button type=\"button\" class=\"btn primary\" data-act=\"new\"><svg class=\"i\"><use href=\"#plus\"/></svg>Nouveau client</button></header>\n    <input id=\"q\" class=\"search\" type=\"search\" placeholder=\"Chercher un chien, un nom, une ville\u2026\" value=\"" +
+
+  esc(S.q) + "\" aria-label=\"Chercher\">\n    " + (
+  q ? '<div style="height:12px"></div>' : "<div class=\"chips\" role=\"group\" aria-label=\"Filtre\">\n      " +
+  [['actifs', 'En cours'], ['finir', 'Forfait bientôt fini'], ['tous', 'Tous']].map(([k, l]) => "<button type=\"button\" class=\"chip\" data-f=\"" + k + "\" aria-pressed=\"" + (S.filtre === k) + "\">" + l + "</button>").join('') + "</div>") + "\n    <div class=\"list\">" + (
+  dogs.slice(0, LIMIT).map(card).join('') || '<div class="note">Aucun chien trouvé.</div>') + "</div>\n    " + (
+  dogs.length > LIMIT ? "<p class=\"hint\">Et " + (dogs.length - LIMIT) + " autres : utilise la recherche.</p>" : '');
+  const inp = document.getElementById('q');
+  inp.addEventListener('input', () => {S.q = inp.value;viewClients();const i = document.getElementById('q');i.focus();i.setSelectionRange(i.value.length, i.value.length);});
+  appEl.querySelectorAll('[data-f]').forEach((b) => b.addEventListener('click', () => {S.filtre = b.dataset.f;viewClients();}));
+  appEl.querySelector('[data-act="new"]').addEventListener('click', () => go('ajouter', { prefill: { nouveau: true } }));
+  appEl.querySelectorAll('[data-dog]').forEach((b) => b.addEventListener('click', () => go('fiche', { dogId: b.dataset.dog })));
+}
+
+/* ============ Fiche chien ============ */
+function viewFiche() {
+  const d = I.chiens[S.dogId];
+  if (!d) return go('clients');
+  const c = clientOfDog(d),st = dogStats(d.id);
+  const autres = (I.dogsByClient[d.clientId] || []).filter((x) => x.id !== d.id);
+  const tel = (c.telephone || '').split('/')[0].replace(/[^\d+]/g, '');
+  let counter;
+  if (st.cur) {
+    const { f, nb, fait, avenir } = st.cur;
+    const paws = Array.from({ length: Math.max(nb, Math.ceil(fait + avenir)) }, (_, i) => "<svg class=\"" + (
+    i + 1 <= fait ? 'fait' : i < fait ? 'fait demi' : i + 1 <= fait + avenir ? 'prevu' : i < fait + avenir ? 'prevu demi' : 'libre') + "\" aria-hidden=\"true\"><use href=\"#paw\"/></svg>").join('');
+    counter = "<div class=\"counter\"><div class=\"n " + level(st.restant) + "\">" + nb2(st.restant) + "</div>\n      <div><div class=\"lab\">" + (
+    st.restant <= 0 ? 'Forfait terminé' : "cours restant" + (st.restant > 1 ? 's' : '') + (st.restant === st.restantCur ? ' sur ' + nb : '')) + "\n        <small>Forfait " +
+    esc((f.libelle || '').toLowerCase()) + " du " + esc(fdate(f.date)) + (st.restant > st.restantCur ? " \xB7 dont " + nb2(st.restant - st.restantCur) + " sur un forfait d\xE9j\xE0 pay\xE9 d'avance" : '') + "</small></div>\n        <div class=\"paws\" role=\"img\" aria-label=\"" +
+    nb2(fait) + " effectu\xE9s, " + nb2(avenir) + " pr\xE9vus\">" + paws + "</div>\n        <div class=\"legend\"><span><b>" +
+    nb2(fait) + "</b> effectu\xE9" + (fait > 1 ? 's' : '') + "</span><span><b>" + nb2(avenir) + "</b> pr\xE9vu" + (avenir > 1 ? 's' : '') + "</span>\n          <span>dont <b>" +
+    nb2(st.cur.faitInd) + "</b> individuel" + (st.cur.faitInd > 1 ? 's' : '') + " et <b>" + nb2(st.cur.faitCo) + "</b> collectif" + (st.cur.faitCo > 1 ? 's' : '') + "</span></div></div></div>";
+  } else {
+    const nb = st.parts.filter((p) => statutP(p) === 'fait').length;
+    counter = "<div class=\"counter\"><div class=\"n\" style=\"font-size:44px\">" + nb + "</div><div><div class=\"lab\">s\xE9ance" + (nb > 1 ? 's' : '') + " effectu\xE9e" + (nb > 1 ? 's' : '') + "<small>Pas de forfait : pay\xE9 \xE0 l'unit\xE9 (s\xE9ance, cours chiot ou d\xE9tente).</small></div></div></div>";
+  }
+  const histItem = (p) => {
+    const s = seanceOf(p);
+    const type = s.type === 'collectif' ? s.titre || 'Collectif' : 'Individuel' + (s.titre ? ' · ' + s.titre : '');
+    return "<button type=\"button\" class=\"it\" data-seance=\"" + s.id + "\"><div class=\"d\">" + esc(cap(fShort.format(parse(s.debut)))) + (s.source === 'import' ? '' : ' · ' + hm(s.debut)) + "\n      <small>" +
+    esc(type) + (p.note ? ' · ' + esc(p.note) : '') + (s.note ? ' · ' + esc(s.note) : '') + "</small></div><span style=\"display:grid;justify-items:end;gap:2px\">" + formulePill(p) + (repartition(p) ? "<span class=\"hint\" style=\"font-size:12px\">" + repartition(p) + "</span>" : '') + "</span></button>";
+  };
+  const paiements = S.data.Recettes.filter((r) => r.chienId === d.id).sort((a, b) => b.date.localeCompare(a.date));
+  // Une ligne de paiement (touchée = modifiable) ; « seul » : paiement unique d'un forfait, affiché en petit
+  const payRow = (r, seul) => "<button type=\"button\" class=\"it\" data-r=\"" + esc(r.id) + "\" style=\"padding-left:" + (r.forfaitId ? 28 : 14) + "px\"><div class=\"d\">" + (seul ? '' : esc(r.libelle || r.categorie)) + "<small>" + (seul ? 'Payé le ' : '') + esc(fdate(r.date)) + (r.mode ? ' · ' + esc(r.mode) : '') + (r.cheques ? ' · n° ' + esc(r.cheques) : '') + (r.note ? ' · ' + esc(r.note) : '') + "</small></div><span class=\"amt\" style=\"font-weight:400\">" + euros(r.montant) + "</span></button>";
+  appEl.innerHTML = "\n    <button type=\"button\" class=\"btn ghost back\" data-act=\"back\"><svg class=\"i\"><use href=\"#left\"/></svg>Clients</button>\n    <div class=\"hero\">\n      <div><h1>" +
+
+
+  esc(d.nom) + "</h1><div class=\"race\">" + esc(d.race || 'Race non renseignée') + (d.naissance ? ' · né(e) le ' + esc(fdate(d.naissance)) : '') + "</div></div>\n      <div class=\"contact\">\n        <div><strong>" +
+
+  esc(c.nom || 'Propriétaire à compléter') + "</strong></div>\n        " + (
+  c.telephone ? "<div><a href=\"tel:" + esc(tel) + "\" target=\"_top\">" + esc(c.telephone) + "</a></div>" : '') + "\n        " + (
+  c.email ? "<div>" + esc(c.email) + "</div>" : '') + "\n        " + (
+  c.adresse || c.ville ? "<div class=\"sub\">" + esc([c.adresse, [c.cp, c.ville].filter(Boolean).join(' ')].filter(Boolean).join(', ')) + "</div>" : '') + "\n        " + (
+  d.notes || c.notes ? "<div class=\"sub\">" + esc([d.notes, c.notes].filter(Boolean).join(' · ')) + "</div>" : '') + "\n        " + (
+  autres.length ? "<div class=\"dogchips\" style=\"margin-top:6px\"><span class=\"sub\">Autres chiens :</span>" + autres.map((x) => "<button type=\"button\" class=\"chip\" data-dog=\"" + x.id + "\">" + esc(x.nom) + "</button>").join('') + "</div>" : '') + "\n      </div>\n      " +
+
+  counter + "\n      " + (
+  st.hors.length ? "<div class=\"alert\">" + st.hors.length + " cours au-del\xE0 du forfait. Pense \xE0 enregistrer un nouveau forfait.</div>" : '') + "\n      <div class=\"row\">\n        <button type=\"button\" class=\"btn primary\" data-act=\"rdv\"><svg class=\"i\"><use href=\"#plus\"/></svg>Rendez-vous</button>\n        <button type=\"button\" class=\"btn\" data-act=\"forfait\">Nouveau forfait</button>\n        <button type=\"button\" class=\"btn\" data-act=\"pay\">Ajouter un paiement</button>\n        <button type=\"button\" class=\"btn\" data-act=\"edit\">Modifier</button>\n      </div>\n    </div>\n    <div class=\"section\"><h2>Prochains rendez-vous</h2>\n      " + (
+
+
+
+
+
+
+
+
+  st.avenir.length ? "<div class=\"list\">" + st.avenir.map((p) => seanceCard(seanceOf(p), { withDate: true })).join('') + "</div>" : '<div class="note">Aucun rendez-vous prévu.</div>') + "</div>\n    <div class=\"section\"><h2>Historique des cours</h2>\n      " + (
+
+  st.passe.length ? "<div class=\"hist\">" + st.passe.map(histItem).join('') + "</div>" : '<div class="note">Aucun cours passé pour l’instant.</div>') + "</div>\n    <div class=\"section\"><h2>Forfaits et paiements</h2>\n      " + (
+
+  paiements.length || st.fs.length ? "<div class=\"hist\">" + st.fs.slice().reverse().map((x) => {
+    const pays = paiements.filter((r) => r.forfaitId === x.f.id);
+    const total = pays.reduce((a, r) => a + (Number(r.montant) || 0), 0);
+    return "<div class=\"it\"><div class=\"d\"><b>Forfait " + x.nb + " cours " + esc((x.f.libelle || '').toLowerCase()) + "</b><small>Achet\xE9 le " + esc(fdate(x.f.date)) + " \xB7 " + nb2(x.fait) + "/" + x.nb + " effectu\xE9s (" + nb2(x.faitInd) + " ind. + " + nb2(x.faitCo) + " co.)" + (pays.length ? pays.length > 1 ? ' · payé en ' + pays.length + ' fois' : '' : ' · paiement non noté') + "</small></div><span class=\"amt\">" + (pays.length ? euros(total) : '—') + "</span></div>" + (
+    pays.length > 1 ? pays.slice().sort((a, b) => a.date.localeCompare(b.date)).map((r) => payRow(r)).join('') : pays.map((r) => payRow(r, true)).join(''));
+  }).join('') + paiements.filter((r) => !r.forfaitId || !st.fs.some((x) => x.f.id === r.forfaitId)).map((r) => payRow(r)).join('') + "</div>" :
+  '<div class="note">Aucun forfait ni paiement noté.</div>') + "</div>\n    <div class=\"section\"><button type=\"button\" class=\"btn small\" data-act=\"autre\">+ Ajouter un autre chien \xE0 " +
+  esc(c.nom || 'ce propriétaire') + "</button></div>";
+  const on = (a, fn) => {const b = appEl.querySelector("[data-act=\"" + a + "\"]");b && b.addEventListener('click', fn);};
+  on('back', () => go('clients'));
+  on('rdv', () => go('ajouter', { prefill: { dogId: d.id } }));
+  on('forfait', () => forfaitSheet(d));
+  on('edit', () => editSheet(d));
+  on('pay', () => recetteSheet(null, { chienId: d.id }));
+  appEl.querySelectorAll('[data-r]').forEach((b) => b.addEventListener('click', () => recetteSheet(S.data.Recettes.find((r) => r.id === b.dataset.r))));
+  on('autre', () => autreChienSheet(c));
+  appEl.querySelectorAll('[data-dog]').forEach((b) => b.addEventListener('click', () => go('fiche', { dogId: b.dataset.dog })));
+  bindSeances();
+}
+
+/* ============ Ajouter un rendez-vous ============ */
+function nextSlot() {
+  const d = new Date();d.setMinutes(0, 0, 0);d.setHours(d.getHours() + 1);
+  if (d.getHours() >= 19) {d.setDate(d.getDate() + 1);d.setHours(9);} else if (d.getHours() < 8) d.setHours(9);
+  return toStr(d);
+}
+// Recherche de chien réutilisable
+function dogPicker(root, exclude, onPick, placeholder) {
+  root.innerHTML = "<input class=\"search pk-q\" type=\"search\" placeholder=\"" + esc(placeholder || 'Tape le nom du chien ou du propriétaire…') + "\" aria-label=\"Chercher un chien\"><div class=\"picker pk-list\" hidden></div>";
+  const q = root.querySelector('.pk-q'),list = root.querySelector('.pk-list');
+  q.addEventListener('input', () => {
+    const t = norm(q.value.trim());
+    if (!t) {list.hidden = true;return;}
+    const res = S.data.Chiens.filter((d) => !exclude().includes(d.id) && norm(d.nom + ' ' + clientOfDog(d).nom + ' ' + d.race).includes(t)).slice(0, 12);
+    list.hidden = false;
+    list.innerHTML = res.map((d) => "<button type=\"button\" data-pick=\"" + d.id + "\"><b>" + esc(d.nom) + "</b><span>" + esc(clientOfDog(d).nom) + " \xB7 " + esc(d.race) + "</span></button>").join('') || '<div class="hint" style="padding:8px">Aucun chien trouvé.</div>';
+    list.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => {q.value = '';list.hidden = true;onPick(b.dataset.pick);}));
+  });
+}
+function forfaitFields(prefix) {
+  return "<div class=\"sub-card\" id=\"" + prefix + "-box\">\n    <label class=\"check\" id=\"" +
+  prefix + "-chk\"><input type=\"checkbox\" id=\"" + prefix + "-on\">Enregistrer un nouveau forfait et son paiement</label>\n    <div id=\"" +
+  prefix + "-fields\" style=\"display:grid;gap:14px\" hidden>\n      <div class=\"two\"><div class=\"field\"><span class=\"lab\">Nombre de cours</span><div class=\"seg\" data-seg=\"" +
+  prefix + "-nb\"><button type=\"button\" data-v=\"10\" aria-pressed=\"true\">10 cours</button><button type=\"button\" data-v=\"5\" aria-pressed=\"false\">5 cours</button></div></div>\n        <div class=\"field\"><span class=\"lab\">Type</span><div class=\"seg\" data-seg=\"" +
+  prefix + "-lib\"><button type=\"button\" data-v=\"\xC9ducation\" aria-pressed=\"true\">\xC9ducation</button><button type=\"button\" data-v=\"Agility\" aria-pressed=\"false\">Agility</button></div></div></div>\n      <div class=\"three\"><div class=\"field\"><label for=\"" +
+  prefix + "-mt\">Montant (\u20AC)</label><input id=\"" + prefix + "-mt\" type=\"number\" inputmode=\"decimal\" value=\"" + TARIFS.forfait['Éducation'][10] + "\"></div>\n        <div class=\"field\"><label for=\"" +
+  prefix + "-mode\">Paiement</label><select id=\"" + prefix + "-mode\"><option value=\"\">\xC0 pr\xE9ciser</option>" + opts(MODES, 'Chèque') + "</select></div>\n        <div class=\"field\"><label for=\"" +
+  prefix + "-chq\">N\xB0 de ch\xE8que(s)</label><input id=\"" + prefix + "-chq\" autocomplete=\"off\" placeholder=\"8852968 / 8852969\"></div></div>\n      <div class=\"field\"><label for=\"" +
+  prefix + "-note\">Remarque (facultatif)</label><input id=\"" + prefix + "-note\" placeholder=\"ex. doit encore 40 \u20AC\"></div>\n    </div></div>";
+
+}
+function bindSeg(root, name, onChange) {
+  const seg = root.querySelector("[data-seg=\"" + name + "\"]");
+  seg.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+    seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    onChange && onChange(b.dataset.v);
+  }));
+  return () => seg.querySelector('[aria-pressed="true"]').dataset.v;
+}
+function bindForfait(root, prefix) {
+  const on = root.querySelector("#" + prefix + "-on"),fields = root.querySelector("#" + prefix + "-fields"),mt = root.querySelector("#" + prefix + "-mt");
+  const upd = () => {const t = TARIFS.forfait[getLib()] || {};if (t[getNb()]) mt.value = t[getNb()];};
+  const getNb = bindSeg(root, prefix + '-nb', upd),getLib = bindSeg(root, prefix + '-lib', upd);
+  const api = {
+    touched: false,
+    set(v) {on.checked = v;fields.hidden = !v;},
+    checked: () => on.checked,
+    read(dog, date) {
+      const f = { id: uid('f'), chienId: dog.id, nbCours: getNb(), libelle: getLib(), date, note: root.querySelector("#" + prefix + "-note").value.trim() };
+      const r = { id: uid('r'), date, categorie: 'Forfait', clientId: dog.clientId, chienId: dog.id, forfaitId: f.id, libelle: "Forfait " + f.nbCours + " cours " + f.libelle.toLowerCase(),
+        nbCours: f.nbCours, mode: root.querySelector("#" + prefix + "-mode").value, cheques: root.querySelector("#" + prefix + "-chq").value.trim(), montant: mt.value, note: f.note };
+      return { f, r };
+    }
+  };
+  on.addEventListener('change', () => {fields.hidden = !on.checked;api.touched = true;});
+  return api;
+}
+function viewAjouter() {
+  const p = S.prefill || {};
+  let type = 'individuel',mode = p.nouveau ? 'nouveau' : 'existant',dogId = p.dogId || '',formule = dogId ? defaultFormule(dogId) : 'forfait';
+  const sel = []; // collectif : [{ dogId | nouveau, formule, prix, mode }]
+  const slot = nextSlot();
+  appEl.innerHTML = "\n    <header class=\"top\"><div><h1>Ajouter un rendez-vous</h1><div class=\"sub\">Il appara\xEEtra aussi dans ton Google Agenda.</div></div></header>\n    <form id=\"f\" class=\"card\" novalidate>\n      <div class=\"seg\" data-seg=\"type\"><button type=\"button\" data-v=\"individuel\" aria-pressed=\"true\">Cours individuel</button><button type=\"button\" data-v=\"collectif\" aria-pressed=\"false\">Cours collectif</button></div>\n\n      <div id=\"indiv\" class=\"form\">\n        <div class=\"seg\" data-seg=\"mode\"><button type=\"button\" data-v=\"existant\" aria-pressed=\"" + (
+
+
+
+
+
+  mode === 'existant') + "\">Client existant</button><button type=\"button\" data-v=\"nouveau\" aria-pressed=\"" + (mode === 'nouveau') + "\">Nouveau client</button></div>\n        <div id=\"exist\" class=\"field\"><span class=\"lab\">Chien</span><div id=\"chosen\"></div><div id=\"pk\"></div></div>\n        <div id=\"nouv\" class=\"form\">\n          <div class=\"field\"><label for=\"n-nom\">Nom et pr\xE9nom du propri\xE9taire</label><input id=\"n-nom\" autocomplete=\"off\" autocapitalize=\"words\" placeholder=\"ex. Dupont Julie\"></div>\n          <div class=\"two stack\"><div class=\"field\"><label for=\"n-tel\">T\xE9l\xE9phone</label><input id=\"n-tel\" type=\"tel\" inputmode=\"tel\" autocomplete=\"off\"></div>\n            <div class=\"field\"><label for=\"n-mail\">Mail (facultatif)</label><input id=\"n-mail\" type=\"email\" autocomplete=\"off\"></div></div>\n          <div class=\"three\"><div class=\"field\"><label for=\"n-chien\">Nom du chien</label><input id=\"n-chien\" autocomplete=\"off\" autocapitalize=\"words\"></div>\n            <div class=\"field\"><label for=\"n-race\">Race</label><input id=\"n-race\" autocomplete=\"off\" list=\"races\"></div>\n            <div class=\"field\"><label for=\"n-naiss\">N\xE9(e) le (facultatif)</label><input id=\"n-naiss\" type=\"date\"></div></div>\n        </div>\n        <div class=\"field\"><span class=\"lab\">Formule</span>\n          <div class=\"seg cinq\" data-seg=\"formule\">" +
+
+
+
+
+
+
+
+
+
+
+  Object.entries(FORMULES).map(([k, l]) => "<button type=\"button\" data-v=\"" + k + "\" aria-pressed=\"" + (k === formule) + "\">" + l + "</button>").join('') + "</div>\n          <div id=\"formule-info\" class=\"hint\"></div></div>\n        <div id=\"prix-box\" class=\"two\"><div class=\"field\"><label for=\"i-prix\">Prix (\u20AC)</label><input id=\"i-prix\" type=\"number\" inputmode=\"decimal\" value=\"" +
+
+  defaultPrix(formule, 'individuel') + "\"></div>\n          <div class=\"field\"><label for=\"i-mode\">Paiement</label><select id=\"i-mode\"><option value=\"\">\xC0 pr\xE9ciser</option>" +
+  opts(MODES) + "</select></div></div>\n        " +
+  forfaitFields('fi') + "\n      </div>\n\n      <div id=\"coll\" class=\"form\" hidden>\n        <div class=\"field\"><label for=\"c-titre\">Cours</label><select id=\"c-titre\">" +
+
+
+
+  opts(TITRES_COLL) + "</select></div>\n        <div class=\"field\"><span class=\"lab\">Chiens inscrits</span><div id=\"sel\" class=\"sel-list\"></div><div id=\"pk2\"></div>\n          <button type=\"button\" class=\"btn small\" id=\"c-new\" style=\"justify-self:start\">+ Nouveau chien (pas encore client)</button>\n          <div id=\"c-newbox\" class=\"sub-card\" hidden>\n            <div class=\"two stack\"><div class=\"field\"><label for=\"cn-chien\">Nom du chien</label><input id=\"cn-chien\" autocapitalize=\"words\"></div><div class=\"field\"><label for=\"cn-race\">Race</label><input id=\"cn-race\" list=\"races\"></div></div>\n            <div class=\"two stack\"><div class=\"field\"><label for=\"cn-nom\">Propri\xE9taire</label><input id=\"cn-nom\" autocapitalize=\"words\"></div><div class=\"field\"><label for=\"cn-tel\">T\xE9l\xE9phone</label><input id=\"cn-tel\" type=\"tel\"></div></div>\n            <button type=\"button\" class=\"btn small primary\" id=\"cn-ok\" style=\"justify-self:start\">Ajouter ce chien</button>\n          </div></div>\n      </div>\n\n      <div class=\"two\">\n        <div class=\"field\"><label for=\"f-date\">Date</label><input id=\"f-date\" type=\"date\" value=\"" +
+
+
+
+
+
+
+
+
+
+
+  slot.slice(0, 10) + "\"></div>\n        <div class=\"field\"><label for=\"f-heure\">Heure</label><input id=\"f-heure\" type=\"time\" step=\"900\" value=\"" +
+  slot.slice(11, 16) + "\"></div>\n      </div>\n      <div class=\"two\">\n        <div class=\"field\"><label for=\"f-duree\">Dur\xE9e</label><select id=\"f-duree\">" +
+
+
+  [30, 45, 60, 90, 120].map((m) => "<option value=\"" + m + "\" " + (m === 60 ? 'selected' : '') + ">" + (m < 60 ? m + ' min' : m === 60 ? '1 h' : m === 90 ? '1 h 30' : '2 h') + "</option>").join('') + "</select></div>\n        <div class=\"field\"><label for=\"f-rep\">R\xE9p\xE9ter</label><select id=\"f-rep\"><option value=\"1\">Une seule fois</option>" +
+  [2, 3, 4, 5, 6, 8, 10].map((n) => "<option value=\"" + n + "\">" + n + " semaines de suite</option>").join('') + "</select></div>\n      </div>\n      <div id=\"f-warn\" class=\"alert\" hidden></div>\n      <button type=\"submit\" class=\"btn primary block\" id=\"f-ok\">Enregistrer le rendez-vous</button>\n    </form>\n    <datalist id=\"races\">" +
+
+
+
+
+  ['Berger Australien', 'Berger Allemand', 'Berger Blanc Suisse', 'Malinois', 'Border Collie', 'Labrador', 'Golden Retriever', 'Jack Russell', 'Cavalier King Charles', 'Bouledogue Français', 'Beagle', 'Staffordshire', 'Chihuahua', 'Bichon', 'Bouvier Bernois', 'Shiba Inu', 'Setter', 'Husky', 'Croisé'].map((r) => "<option value=\"" + r + "\">").join('') + "</datalist>";
+  const f = document.getElementById('f'),byId = (id) => document.getElementById(id);
+  const fi = bindForfait(f, 'fi');
+  const setSeg = (name, v) => f.querySelectorAll("[data-seg=\"" + name + "\"] button").forEach((x) => x.setAttribute('aria-pressed', x.dataset.v === v));
+  function refresh() {
+    byId('indiv').hidden = type !== 'individuel';byId('coll').hidden = type !== 'collectif';
+    byId('exist').hidden = mode !== 'existant';byId('nouv').hidden = mode !== 'nouveau';
+    const d = mode === 'existant' ? I.chiens[dogId] : null;
+    byId('chosen').innerHTML = d ? "<div class=\"sel\"><div class=\"top\"><b>" + esc(d.nom) + " <span>" + esc(d.race) + " \xB7 " + esc(clientOfDog(d).nom) + "</span></b><button type=\"button\" class=\"x\" id=\"unpick\" style=\"color:var(--accent)\">Changer</button></div></div>" : '';
+    byId('pk').hidden = !!d;
+    if (d) byId('unpick').addEventListener('click', () => {dogId = '';refresh();});
+    setSeg('formule', formule);
+    byId('prix-box').hidden = !payant(formule);
+    let info = '',warn = '',showF = false;
+    if (formule === 'forfait') {
+      if (mode === 'nouveau') {showF = true;if (!fi.touched) fi.set(true);info = 'Les cours seront déduits du forfait enregistré ci-dessous.';} else
+      if (d) {
+        const st = dogStats(d.id),n = Number(byId('f-rep').value);
+        if (st.fs.length) info = "Reste " + nb2(st.restant) + " cours \xB7 " + nb2(st.libres) + " encore \xE0 planifier.";
+        showF = true;
+        if (st.libres < n) {
+          if (!fi.touched) fi.set(true);
+          warn = st.fs.length ? 'Le forfait est déjà entièrement planifié : enregistre un nouveau forfait ci-dessous, ou choisis « À la séance ».' : 'Ce chien n’a pas encore de forfait : enregistre-le ci-dessous, ou choisis « À la séance ».';
+        } else if (!fi.touched) fi.set(false);
+      }
+    }
+    byId('fi-box').hidden = !showF;
+    if (!fi.checked() && warn) warn += ' Sans ça, le cours sera marqué « hors forfait ».';
+    if (type === 'individuel' && formule === 'forfait' && Number(byId('f-duree').value) <= 30) info = (info ? info + ' ' : '') + 'Séance de 30 min : compte pour ½ cours du forfait.';
+    byId('formule-info').textContent = info;
+    byId('f-warn').textContent = warn;byId('f-warn').hidden = !warn || type !== 'individuel';
+    drawSel();
+  }
+  function drawSel() {
+    byId('sel').innerHTML = sel.map((x, i) => {
+      const d = x.nouveau ? x.nouveau.chien : I.chiens[x.dogId];
+      const sub = x.nouveau ? x.nouveau.client.nom : clientOfDog(d).nom;
+      const st = x.dogId ? dogStats(x.dogId) : null;
+      const paye = payant(x.formule);
+      const hint = x.formule === 'forfait' ? st && st.fs.length ? "Reste " + nb2(st.restant) + " cours" + (st.libres <= 0 ? ' · forfait déjà tout planifié' : '') : 'Pas de forfait enregistré : ce cours sera « hors forfait »' : '';
+      return "<div class=\"sel\"><div class=\"top\"><b>" + esc(d.nom) + " <span>" + esc(sub) + "</span></b><button type=\"button\" class=\"x\" data-rm=\"" + i + "\">Retirer</button></div>\n        <div class=\"opts\"><select data-fo=\"" +
+      i + "\" aria-label=\"Formule\">" + Object.entries(FORMULES).map(([k, l]) => "<option value=\"" + k + "\" " + (k === x.formule ? 'selected' : '') + ">" + l + "</option>").join('') + "</select>\n          <input data-px=\"" +
+      i + "\" type=\"number\" inputmode=\"decimal\" value=\"" + esc(x.prix) + "\" placeholder=\"\u20AC\" aria-label=\"Prix\" " + (paye ? '' : 'disabled') + ">\n          <select class=\"md\" data-md=\"" +
+      i + "\" aria-label=\"Paiement\" " + (paye ? '' : 'disabled') + "><option value=\"\">Paiement ?</option>" + opts(MODES, x.mode) + "</select></div>\n        " + (
+      hint ? "<div class=\"hint\">" + esc(hint) + "</div>" : '') + "</div>";
+    }).join('') || '<div class="hint">Aucun chien pour l’instant : cherche-les ci-dessous.</div>';
+    byId('sel').querySelectorAll('[data-rm]').forEach((b) => b.addEventListener('click', () => {sel.splice(+b.dataset.rm, 1);drawSel();}));
+    byId('sel').querySelectorAll('[data-fo]').forEach((s) => s.addEventListener('change', () => {const x = sel[+s.dataset.fo];x.formule = s.value;x.prix = defaultPrix(s.value, 'collectif');drawSel();}));
+    byId('sel').querySelectorAll('[data-px]').forEach((s) => s.addEventListener('input', () => {sel[+s.dataset.px].prix = s.value;}));
+    byId('sel').querySelectorAll('[data-md]').forEach((s) => s.addEventListener('change', () => {sel[+s.dataset.md].mode = s.value;}));
+  }
+  dogPicker(byId('pk'), () => [], (id) => {dogId = id;formule = defaultFormule(id);byId('i-prix').value = defaultPrix(formule, 'individuel');fi.touched = false;refresh();});
+  dogPicker(byId('pk2'), () => sel.map((x) => x.dogId), (id) => {const fo = defaultFormule(id, byId('c-titre').value);sel.push({ dogId: id, formule: fo, prix: defaultPrix(fo, 'collectif'), mode: '' });drawSel();}, 'Ajouter un chien : tape son nom…');
+  bindSeg(f, 'type', (v) => {type = v;refresh();});
+  bindSeg(f, 'mode', (v) => {mode = v;if (v === 'nouveau') formule = 'forfait';fi.touched = false;refresh();});
+  bindSeg(f, 'formule', (v) => {formule = v;byId('i-prix').value = defaultPrix(v, 'individuel');refresh();});
+  byId('fi-on').addEventListener('change', refresh);
+  byId('f-rep').addEventListener('change', refresh);
+  byId('f-duree').addEventListener('change', refresh);
+  byId('c-titre').addEventListener('change', () => {const auto = defaultFormule('', byId('c-titre').value);if (auto === 'chiot' || auto === 'detente') sel.forEach((x) => {x.formule = auto;x.prix = defaultPrix(auto, 'collectif');});drawSel();});
+  byId('c-new').addEventListener('click', () => {byId('c-newbox').hidden = !byId('c-newbox').hidden;});
+  byId('cn-ok').addEventListener('click', () => {
+    const chien = byId('cn-chien').value.trim();if (!chien) return toast('Indique le nom du chien.');
+    const client = { id: uid('c'), nom: byId('cn-nom').value.trim() || '(propriétaire à compléter)', telephone: byId('cn-tel').value.trim(), email: '', adresse: '', cp: '', ville: '', notes: '' };
+    const fo = { 'École des chiots': 'chiot', 'Détente': 'detente' }[byId('c-titre').value] || 'seance';
+    sel.push({ nouveau: { client, chien: { id: uid('d'), clientId: client.id, nom: chien, race: byId('cn-race').value.trim(), naissance: '', notes: '' } }, formule: fo, prix: defaultPrix(fo, 'collectif'), mode: '' });
+    ['cn-chien', 'cn-race', 'cn-nom', 'cn-tel'].forEach((k) => {byId(k).value = '';});byId('c-newbox').hidden = true;drawSel();
+  });
+  refresh();
+
+  f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const date = byId('f-date').value,h = byId('f-heure').value;
+    if (!date || !h) return toast('Indique la date et l’heure.');
+    const debut = date + "T" + h,duree = byId('f-duree').value,rep = Number(byId('f-rep').value);
+    const ch = { Clients: [], Chiens: [], Forfaits: [], Seances: [], Participations: [], Recettes: [] };
+    let target = null;
+    if (type === 'individuel') {
+      let dog;
+      if (mode === 'nouveau') {
+        const nom = byId('n-nom').value.trim(),chien = byId('n-chien').value.trim();
+        if (!nom) return toast('Indique le nom du propriétaire.');
+        if (!chien) return toast('Indique le nom du chien.');
+        const c = { id: uid('c'), nom, telephone: byId('n-tel').value.trim(), email: byId('n-mail').value.trim(), adresse: '', cp: '', ville: '', notes: '' };
+        dog = { id: uid('d'), clientId: c.id, nom: chien, race: byId('n-race').value.trim(), naissance: byId('n-naiss').value, notes: '' };
+        ch.Clients.push(c);ch.Chiens.push(dog);
+      } else {
+        dog = I.chiens[dogId];
+        if (!dog) return toast('Choisis un chien : tape son nom dans la recherche.');
+      }
+      if (formule === 'forfait' && !byId('fi-box').hidden && fi.checked()) {const x = fi.read(dog, today());ch.Forfaits.push(x.f);ch.Recettes.push(x.r);}
+      const paye = payant(formule);
+      for (let i = 0; i < rep; i++) {
+        const s = { id: uid('s'), debut: addDaysStr(debut, 7 * i), duree, type: 'individuel', titre: '', statut: 'prevu', source: '', note: '' };
+        ch.Seances.push(s);
+        ch.Participations.push({ id: uid('p'), seanceId: s.id, chienId: dog.id, formule, statut: 'prevu', prix: paye ? byId('i-prix').value : '', mode: paye ? byId('i-mode').value : '', note: '' });
+      }
+      target = dog.id;
+    } else {
+      if (!sel.length) return toast('Ajoute au moins un chien au cours.');
+      sel.forEach((x) => {if (x.nouveau) {ch.Clients.push(x.nouveau.client);ch.Chiens.push(x.nouveau.chien);x.dogId = x.nouveau.chien.id;}});
+      for (let i = 0; i < rep; i++) {
+        const s = { id: uid('s'), debut: addDaysStr(debut, 7 * i), duree, type: 'collectif', titre: byId('c-titre').value, statut: 'prevu', source: '', note: '' };
+        ch.Seances.push(s);
+        sel.forEach((x) => {const paye = payant(x.formule);ch.Participations.push({ id: uid('p'), seanceId: s.id, chienId: x.dogId, formule: x.formule, statut: 'prevu', prix: paye ? String(x.prix || '') : '', mode: paye ? x.mode || '' : '', note: '' });});
+      }
+    }
+    const ok = byId('f-ok');ok.disabled = true;ok.textContent = 'Enregistrement…';
+    commit(ch, null, rep > 1 ? rep + " s\xE9ances enregistr\xE9es" : 'Rendez-vous enregistré',
+    () => target ? go('fiche', { dogId: target }) : go('agenda', { week: Math.floor((parse(debut) - monday(0)) / 6048e5) })).
+    finally(() => {if (document.body.contains(ok)) {ok.disabled = false;ok.textContent = 'Enregistrer le rendez-vous';}});
+  });
+}
+
+/* ============ Recettes ============ */
+function viewRecettes() {
+  if (S.periode == null) S.periode = periodeOf(today()).key;
+  const list = toutesRecettes().filter((r) => r.date && periodeOf(r.date).key === S.periode).sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id)));
+  const total = list.reduce((a, r) => a + (Number(r.montant) || 0), 0);
+  const parCat = {};
+  list.forEach((r) => {parCat[r.categorie] = (parCat[r.categorie] || 0) + (Number(r.montant) || 0);});
+  const who = (r) => {const d = I.chiens[r.chienId],c = I.clients[r.clientId] || d && clientOfDog(d);return [c && c.nom, d && d.nom].filter(Boolean).join(' · ');};
+  appEl.innerHTML = "\n    <header class=\"top\"><div><h1>Recettes</h1><div class=\"sub\">Le livre des recettes se remplit tout seul.</div></div>\n      <button type=\"button\" class=\"btn primary\" data-act=\"add\"><svg class=\"i\"><use href=\"#plus\"/></svg>Recette</button></header>\n    <div class=\"weeknav\">\n      <button type=\"button\" class=\"iconbtn\" data-p=\"-1\" aria-label=\"P\xE9riode pr\xE9c\xE9dente\"><svg class=\"i\"><use href=\"#left\"/></svg></button>\n      <div class=\"lbl\">" +
+
+
+
+
+  esc(periodeNom(S.periode)) + "</div>\n      <button type=\"button\" class=\"iconbtn\" data-p=\"1\" aria-label=\"P\xE9riode suivante\"><svg class=\"i\"><use href=\"#right\"/></svg></button>\n    </div>\n    <div class=\"total\"><div class=\"sub\">Total de la p\xE9riode</div><div class=\"n\">" +
+
+
+  euros(total) + "</div>\n      <div class=\"cats\">" +
+  Object.entries(parCat).sort((a, b) => b[1] - a[1]).map(([k, v]) => "<span class=\"pill muted\">" + esc(k) + " \xB7 " + euros(v) + "</span>").join('') + "</div></div>\n    <div class=\"section\"><h2>D\xE9tail <span class=\"sub\">" +
+  list.length + " ligne" + (list.length > 1 ? 's' : '') + "</span></h2>\n      " + (
+  list.length ? "<div class=\"hist\">" + list.map((r) => "<button type=\"button\" class=\"it\" data-r=\"" + esc(r.id) + "\"><div class=\"d\">" + esc(fdate(r.date)) + " \xB7 " + esc(r.libelle || r.categorie) + "\n        <small>" +
+  esc([who(r), r.categorie, r.mode, r.cheques].filter(Boolean).join(' · ')) + "</small></div><span class=\"amt\">" + euros(r.montant) + "</span></button>").join('') + "</div>" : '<div class="note">Aucune recette sur cette période.</div>') + "</div>\n    <div class=\"section\"><h2>Fichier Excel</h2>\n      <div class=\"card\"><div class=\"hint\">Le fichier contient les forfaits (comme \xAB Cours au terrain \xBB), le livre des recettes par p\xE9riode, les totaux et les s\xE9ances hors forfait. Il se met \xE0 jour tout seul apr\xE8s chaque changement (au plus une fois par minute) et toutes les heures.</div>\n        <button type=\"button\" class=\"btn\" data-act=\"excel\">Mettre \xE0 jour le fichier maintenant</button>\n        <div id=\"liens\" class=\"row\" " + (
+
+
+
+  S.liens ? '' : 'hidden') + ">" + (S.liens ? liensHtml(S.liens) : '') + "</div></div></div>\n    <div class=\"section\"><h2>" + (
+  S.meta && !S.meta.importFait ? "Importer l'historique" : 'Importer un fichier de mise à jour') + "</h2><div class=\"card\">\n      <div class=\"hint\">" + (
+  S.meta && !S.meta.importFait ? 'À faire une seule fois : choisis le fichier <b>historique-agenda-canin.json</b> pour reprendre les clients, chiens, forfaits et recettes 2025-2026.' : 'Seulement si on t’a envoyé un fichier .json de mise à jour (par exemple les rendez-vous recopiés de l’agenda papier).') + "</div>\n      <input type=\"file\" id=\"imp\" accept=\".json,application/json\"></div></div>\n    <div class=\"section\"><h2>Version de l'appli</h2><div class=\"card\">\n      <div class=\"hint\">Version install\xE9e : <b>" +
+
+
+  esc(S.version ? S.version.actuelle : '…') + "</b>" + (majDispo() ? ' · nouvelle version <b>' + esc(S.version.derniere.version) + '</b> disponible' : S.version && S.version.derniere ? ' · c’est la plus récente' : '') + "</div>\n      <button type=\"button\" class=\"btn " + (
+  majDispo() ? 'primary' : '') + "\" data-act=\"maj\">" + (majDispo() ? 'Mettre à jour l’appli' : 'Rechercher une mise à jour') + "</button></div></div>";
+  appEl.querySelectorAll('[data-p]').forEach((b) => b.addEventListener('click', () => {S.periode = shiftPeriode(S.periode, +b.dataset.p);render();}));
+  appEl.querySelector('[data-act="add"]').addEventListener('click', () => recetteSheet(null));
+  appEl.querySelectorAll('[data-r]').forEach((b) => b.addEventListener('click', () => {
+    const id = b.dataset.r;
+    if (id.startsWith('p-')) {const p = S.data.Participations.find((x) => x.id === id.slice(2));if (p) seanceSheet(p.seanceId);return;}
+    recetteSheet(S.data.Recettes.find((r) => r.id === id));
+  }));
+  appEl.querySelector('[data-act="maj"]').addEventListener('click', (e) => majAppli(e.currentTarget));
+  appEl.querySelector('[data-act="excel"]').addEventListener('click', (e) => {
+    const b = e.currentTarget;b.disabled = true;b.textContent = 'Mise à jour… (quelques secondes)';
+    call('majCahier').then((l) => {S.liens = l;const z = document.getElementById('liens');z.innerHTML = liensHtml(l);z.hidden = false;toast('Fichier à jour');}).
+    catch((err) => toast(err && err.message || 'Impossible de préparer le fichier.')).
+    finally(() => {b.disabled = false;b.textContent = 'Mettre à jour le fichier maintenant';});
+  });
+  const imp = document.getElementById('imp');
+  if (imp) imp.addEventListener('change', () => {
+    const file = imp.files[0];if (!file) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      let payload;try {payload = JSON.parse(rd.result);} catch (e) {return toast('Ce fichier est illisible.');}
+      document.getElementById('busy').hidden = false;imp.disabled = true;toast('Import en cours… (jusqu’à une minute)');
+      const maj = payload && payload.format === 'agenda-canin-maj-1';
+      call(maj ? 'appliquerMaj' : 'importHistorique', payload).then((d) => {setData(d);toast(maj ? 'Mise à jour appliquée' : 'Historique importé');render();}).
+      catch((err) => {imp.disabled = false;toast(err && err.message || 'Import impossible.');}).
+      finally(() => {document.getElementById('busy').hidden = true;});
+    };
+    rd.readAsText(file);
+  });
+}
+const liensHtml = (l) => "<a class=\"btn primary\" href=\"" + esc(l.excel) + "\" target=\"_blank\" rel=\"noopener\">T\xE9l\xE9charger en Excel</a><a class=\"btn\" href=\"" + esc(l.cahier) + "\" target=\"_blank\" rel=\"noopener\">Ouvrir dans Google Sheets</a>";
+
+/* ============ Panneaux ============ */
+function openModal(html, bind) {
+  const m = document.getElementById('modal');
+  m.innerHTML = "<div class=\"overlay\"><div class=\"sheet\" role=\"dialog\" aria-modal=\"true\">" + html + "</div></div>";
+  m.querySelector('.overlay').addEventListener('click', (e) => {if (e.target.classList.contains('overlay')) closeModal();});
+  m.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', closeModal));
+  bind && bind(m);
+}
+function closeModal() {document.getElementById('modal').innerHTML = '';}
+document.addEventListener('keydown', (e) => {if (e.key === 'Escape') closeModal();});
+// Bouton à confirmer d'un second appui (les fenêtres « confirmer » du navigateur ne sont pas fiables ici)
+function confirmIn(btn, label, fn) {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.sure) {btn.disabled = true;return fn();}
+    btn.dataset.sure = 1;btn.textContent = label;btn.classList.add('danger');btn.style.color = '';
+  });
+}
+
+function seanceSheet(sid) {
+  const s = I.seances[sid];if (!s) return;
+  const parts = (I.partsBySeance[sid] || []).map((p) => Object.assign({}, p));
+  const removed = [];
+  const st = statutS(s),coll = s.type === 'collectif';
+  const row = (p, i) => {
+    const d = I.chiens[p.chienId] || {},paye = payant(p.formule);
+    return "<div class=\"sel\"><div class=\"top\"><b>" + esc(d.nom) + " <span>" + esc(clientOfDog(d).nom) + "</span></b><span style=\"display:grid;justify-items:end;gap:2px\">" + formulePill(p) + (repartition(p) ? "<span class=\"hint\" style=\"font-size:12px\">" + repartition(p) + "</span>" : '') + "</span></div>\n      <div class=\"opts\"><select data-fo=\"" +
+    i + "\" aria-label=\"Formule\">" + Object.entries(FORMULES).map(([k, l]) => "<option value=\"" + k + "\" " + (k === p.formule ? 'selected' : '') + ">" + l + "</option>").join('') + "</select>\n        <input data-px=\"" +
+    i + "\" type=\"number\" inputmode=\"decimal\" value=\"" + esc(p.prix) + "\" placeholder=\"\u20AC\" aria-label=\"Prix\" " + (paye ? '' : 'disabled') + ">\n        <select class=\"md\" data-md=\"" +
+    i + "\" aria-label=\"Paiement\" " + (paye ? '' : 'disabled') + "><option value=\"\">Paiement ?</option>" + opts(MODES, p.mode) + "</select></div>\n      <div class=\"row\" style=\"justify-content:space-between\"><label class=\"check\" style=\"font-weight:400\"><input type=\"checkbox\" data-abs=\"" +
+    i + "\" " + (p.statut === 'annule' ? 'checked' : '') + ">Absent / annul\xE9 (non d\xE9compt\xE9)</label>\n        <span><button type=\"button\" class=\"x\" data-fiche=\"" +
+    p.chienId + "\" style=\"color:var(--accent)\">Fiche</button>" + (coll ? "<button type=\"button\" class=\"x\" data-rm=\"" + i + "\">Retirer</button>" : '') + "</span></div></div>";
+  };
+  openModal("\n    <div><h3>" + (
+  coll ? esc(s.titre || 'Cours collectif') : 'Cours individuel' + (s.titre ? ' · ' + esc(s.titre) : '')) + "</h3>\n      <div class=\"sub\">" +
+  esc(cap(fDay.format(parse(s.debut)))) + " " + parse(s.debut).getFullYear() + (s.source === 'import' ? ' (heure non notée)' : ' à ' + hm(s.debut) + ' · ' + esc(s.duree) + ' min') + "</div>\n      <div style=\"margin-top:8px\"><span class=\"pill " + (
+  st === 'annule' ? 'bad' : st === 'fait' ? 'ok' : 'muted') + "\">" + { avenir: 'À venir · pas encore décompté', fait: 'Passé · décompté', annule: 'Séance annulée · rien n’est décompté' }[st] + "</span></div></div>\n    <div id=\"rows\" class=\"sel-list\"></div>\n    " + (
+
+  coll ? '<div id="pk3"></div>' : '') + "\n    <button type=\"button\" class=\"btn primary block\" data-a=\"save\">Enregistrer les changements</button>\n    <div class=\"acts\">\n      " + (
+
+
+  st !== 'annule' ? '<button type="button" class="btn block" data-a="move">Déplacer</button>' : '') + "\n      " + (
+  st !== 'annule' ? "<button type=\"button\" class=\"btn block\" data-a=\"cancel\" style=\"color:var(--red)\">" + (st === 'fait' ? 'Marquer toute la séance comme annulée' : 'Annuler la séance') + "</button>" : '<button type="button" class="btn block" data-a="restore">Rétablir la séance</button>') + "\n      <button type=\"button\" class=\"btn block\" data-a=\"del\" style=\"color:var(--red)\">Supprimer (erreur de saisie)</button>\n      <button type=\"button\" class=\"btn ghost block\" data-close>Fermer</button>\n    </div>",
+
+
+  (m) => {
+    const draw = () => {
+      m.querySelector('#rows').innerHTML = parts.map(row).join('') || '<div class="hint">Aucun chien inscrit.</div>';
+      m.querySelectorAll('[data-fo]').forEach((x) => x.addEventListener('change', () => {const p = parts[+x.dataset.fo];p.formule = x.value;p.prix = String(defaultPrix(x.value, s.type));draw();}));
+      m.querySelectorAll('[data-px]').forEach((x) => x.addEventListener('input', () => {parts[+x.dataset.px].prix = x.value;}));
+      m.querySelectorAll('[data-md]').forEach((x) => x.addEventListener('change', () => {parts[+x.dataset.md].mode = x.value;}));
+      m.querySelectorAll('[data-abs]').forEach((x) => x.addEventListener('change', () => {parts[+x.dataset.abs].statut = x.checked ? 'annule' : 'prevu';}));
+      m.querySelectorAll('[data-rm]').forEach((x) => x.addEventListener('click', () => {const r = parts.splice(+x.dataset.rm, 1)[0];if (I.partsBySeance[sid] && I.partsBySeance[sid].some((p) => p.id === r.id)) removed.push(r.id);draw();}));
+      m.querySelectorAll('[data-fiche]').forEach((x) => x.addEventListener('click', () => {closeModal();go('fiche', { dogId: x.dataset.fiche });}));
+    };
+    draw();
+    if (coll) dogPicker(m.querySelector('#pk3'), () => parts.map((p) => p.chienId), (id) => {
+      const fo = defaultFormule(id, s.titre);
+      parts.push({ id: uid('p'), seanceId: s.id, chienId: id, formule: fo, statut: 'prevu', prix: String(defaultPrix(fo, 'collectif')), mode: '', note: '' });draw();
+    }, 'Ajouter un chien à ce cours…');
+    const on = (a, fn) => {const b = m.querySelector("[data-a=\"" + a + "\"]");b && b.addEventListener('click', fn);};
+    on('save', () => {
+      parts.forEach((p) => {if (p.formule === 'forfait' || p.formule === 'offert') {p.prix = '';p.mode = '';}});
+      commit({ Participations: parts }, { Participations: removed }, 'Séance enregistrée');
+    });
+    on('move', () => moveSheet(s));
+    on('cancel', () => cancelSheet(s));
+    on('restore', () => commit({ Seances: [Object.assign({}, s, { statut: 'prevu', note: '' })] }, null, 'Séance rétablie'));
+    confirmIn(m.querySelector('[data-a="del"]'), 'Appuie encore pour supprimer définitivement', () =>
+    commit(null, { Seances: [s.id], Participations: (I.partsBySeance[sid] || []).map((p) => p.id) }, 'Séance supprimée'));
+  });
+}
+function moveSheet(s) {
+  openModal("\n    <div><h3>D\xE9placer la s\xE9ance</h3><div class=\"sub\">C'est la m\xEAme s\xE9ance : elle ne sera compt\xE9e qu'une fois.</div></div>\n    <div class=\"two\"><div class=\"field\"><label for=\"m-date\">Nouvelle date</label><input id=\"m-date\" type=\"date\" value=\"" +
+
+  s.debut.slice(0, 10) + "\"></div>\n      <div class=\"field\"><label for=\"m-heure\">Heure</label><input id=\"m-heure\" type=\"time\" step=\"900\" value=\"" + (
+  s.source === 'import' ? '10:00' : s.debut.slice(11, 16)) + "\"></div></div>\n    <div class=\"acts\"><button type=\"button\" class=\"btn primary block\" data-a=\"ok\">D\xE9placer</button><button type=\"button\" class=\"btn ghost block\" data-close>Retour</button></div>",
+  (m) => {
+    m.querySelector('[data-a="ok"]').addEventListener('click', (e) => {
+      const dd = m.querySelector('#m-date').value,hh = m.querySelector('#m-heure').value;
+      if (!dd || !hh) return toast('Indique la date et l’heure.');
+      e.target.disabled = true;
+      commit({ Seances: [Object.assign({}, s, { debut: dd + "T" + hh, source: '' })] }, null, "S\xE9ance d\xE9plac\xE9e au " + fMonth.format(parse(dd)) + " \xE0 " + hh.replace(':', 'h'));
+    });
+  });
+}
+function cancelSheet(s) {
+  openModal("\n    <div><h3>Annuler cette s\xE9ance ?</h3><div class=\"sub\">" +
+  esc(cap(fDay.format(parse(s.debut)))) + (s.source === 'import' ? '' : ' à ' + hm(s.debut)) + ".<br>Aucun chien ne sera d\xE9compt\xE9 et elle sera retir\xE9e de Google Agenda.<br>Pour un seul chien absent dans un cours collectif, coche plut\xF4t \xAB Absent \xBB \xE0 c\xF4t\xE9 de son nom.</div></div>\n    <div class=\"acts\"><button type=\"button\" class=\"btn danger block\" data-a=\"ok\">Oui, annuler la s\xE9ance</button><button type=\"button\" class=\"btn ghost block\" data-close>Non, garder</button></div>",
+  (m) => {
+    m.querySelector('[data-a="ok"]').addEventListener('click', (e) => {e.target.disabled = true;commit({ Seances: [Object.assign({}, s, { statut: 'annule' })] }, null, 'Séance annulée, rien n’est décompté');});
+  });
+}
+function forfaitSheet(d) {
+  openModal("<div><h3>Nouveau forfait pour " + esc(d.nom) + "</h3><div class=\"sub\">Les cours \xAB forfait \xBB seront d\xE9duits de celui-ci d\xE8s que le forfait en cours sera termin\xE9.</div></div>\n    " +
+  forfaitFields('fs') + "\n    <div class=\"field\"><label for=\"fs-date\">Date d'achat</label><input id=\"fs-date\" type=\"date\" value=\"" +
+  today() + "\"></div>\n    <div class=\"acts\"><button type=\"button\" class=\"btn primary block\" data-a=\"ok\">Enregistrer le forfait</button><button type=\"button\" class=\"btn ghost block\" data-close>Retour</button></div>",
+  (m) => {
+    const fb = bindForfait(m, 'fs');fb.set(true);
+    m.querySelector('#fs-chk').hidden = true;
+    m.querySelector('[data-a="ok"]').addEventListener('click', (e) => {
+      const x = fb.read(d, m.querySelector('#fs-date').value || today());
+      e.target.disabled = true;
+      commit({ Forfaits: [x.f], Recettes: [x.r] }, null, 'Forfait enregistré');
+    });
+  });
+}
+function editSheet(d) {
+  const c = clientOfDog(d),fs = forfaitsOf(d.id);
+  const fld = (id, lab, val, type = 'text') => "<div class=\"field\"><label for=\"e-" + id + "\">" + lab + "</label><input id=\"e-" + id + "\" type=\"" + type + "\" value=\"" + esc(val) + "\"></div>";
+  openModal("\n    <h3>Modifier la fiche</h3>\n    <div class=\"sub-card\"><b>Chien</b>\n      <div class=\"two stack\">" +
+
+
+  fld('chien', 'Nom du chien', d.nom) + fld('race', 'Race', d.race) + "</div>\n      " +
+  fld('naissance', 'Date de naissance', d.naissance, 'date') + "\n      <div class=\"field\"><label for=\"e-dnotes\">Notes sur le chien</label><textarea id=\"e-dnotes\">" +
+  esc(d.notes) + "</textarea></div></div>\n    <div class=\"sub-card\"><b>Propri\xE9taire</b>" + (
+  c.id ? '' : '<div class="hint">Aucun propriétaire lié : il sera créé.</div>') + "\n      " +
+  fld('nom', 'Nom et prénom', c.nom) + "\n      <div class=\"two stack\">" +
+  fld('telephone', 'Téléphone', c.telephone, 'tel') + fld('email', 'Mail', c.email, 'email') + "</div>\n      " +
+  fld('adresse', 'Adresse', c.adresse) + "\n      <div class=\"two\">" +
+  fld('cp', 'Code postal', c.cp) + fld('ville', 'Ville', c.ville) + "</div></div>\n    " + (
+  fs.length ? "<div class=\"sub-card\"><b>Forfaits</b>" + fs.map((f) => "<div class=\"two\"><div class=\"field\"><label for=\"ef-nb-" + f.id + "\">Du " + esc(fdate(f.date)) + " : nb de cours</label><input id=\"ef-nb-" + f.id + "\" type=\"number\" value=\"" + esc(f.nbCours) + "\"></div>\n      <div class=\"field\"><label for=\"ef-lib-" +
+  f.id + "\">Type</label><select id=\"ef-lib-" + f.id + "\">" + opts(['Éducation', 'Agility'], f.libelle) + "</select></div></div>").join('') + "</div>" : '') + "\n    <div class=\"acts\"><button type=\"button\" class=\"btn primary block\" data-a=\"ok\">Enregistrer</button><button type=\"button\" class=\"btn ghost block\" data-close>Annuler</button></div>",
+  (m) => {
+    const v = (k) => m.querySelector('#e-' + k).value.trim();
+    m.querySelector('[data-a="ok"]').addEventListener('click', (e) => {
+      if (!v('chien')) return toast('Le nom du chien est obligatoire.');
+      const client = Object.assign({ email: '', adresse: '', cp: '', ville: '', notes: '' }, c, { id: c.id || uid('c'), nom: v('nom'), telephone: v('telephone'), email: v('email'), adresse: v('adresse'), cp: v('cp'), ville: v('ville') });
+      e.target.disabled = true;
+      commit({
+        Chiens: [Object.assign({}, d, { clientId: client.id, nom: v('chien'), race: v('race'), naissance: v('naissance'), notes: v('dnotes') })],
+        Clients: [client],
+        Forfaits: fs.map((f) => Object.assign({}, f, { nbCours: m.querySelector('#ef-nb-' + f.id).value || f.nbCours, libelle: m.querySelector('#ef-lib-' + f.id).value }))
+      }, null, 'Fiche enregistrée');
+    });
+  });
+}
+function autreChienSheet(c) {
+  openModal("<h3>Autre chien de " + esc(c.nom) + "</h3>\n    <div class=\"two stack\"><div class=\"field\"><label for=\"a-nom\">Nom du chien</label><input id=\"a-nom\" autocapitalize=\"words\"></div><div class=\"field\"><label for=\"a-race\">Race</label><input id=\"a-race\"></div></div>\n    <div class=\"field\"><label for=\"a-naiss\">Date de naissance (facultatif)</label><input id=\"a-naiss\" type=\"date\"></div>\n    <div class=\"acts\"><button type=\"button\" class=\"btn primary block\" data-a=\"ok\">Ajouter</button><button type=\"button\" class=\"btn ghost block\" data-close>Retour</button></div>",
+
+
+  (m) => {
+    m.querySelector('[data-a="ok"]').addEventListener('click', (e) => {
+      const nom = m.querySelector('#a-nom').value.trim();if (!nom) return toast('Indique le nom du chien.');
+      const d = { id: uid('d'), clientId: c.id, nom, race: m.querySelector('#a-race').value.trim(), naissance: m.querySelector('#a-naiss').value, notes: '' };
+      e.target.disabled = true;
+      commit({ Chiens: [d] }, null, 'Chien ajouté', () => go('fiche', { dogId: d.id }));
+    });
+  });
+}
+function recetteSheet(r, ctx) {
+  const x = Object.assign({}, r || { id: uid('r'), date: today(), categorie: 'Friandises', clientId: '', chienId: '', forfaitId: '', libelle: '', nbCours: '', mode: 'Espèces', cheques: '', montant: '', note: '' });
+  if (!r && ctx && ctx.chienId) {
+    // Paiement ajouté depuis la fiche d'un chien : rattaché à son forfait en cours s'il en a un
+    const st = dogStats(ctx.chienId);
+    x.chienId = ctx.chienId;x.clientId = I.chiens[ctx.chienId].clientId;
+    x.categorie = st.fs.length ? 'Forfait' : 'Cours';
+    x.forfaitId = st.cur ? st.cur.f.id : '';
+  }
+  openModal("<h3>" + (r ? 'Modifier la recette' : ctx ? 'Ajouter un paiement' : 'Nouvelle recette') + "</h3>\n    <div class=\"field\"><span class=\"lab\">Chien (facultatif)</span><div id=\"r-dog\"></div><div id=\"r-pk\"></div></div>\n    <div class=\"field\" id=\"r-fbox\"><label for=\"r-forfait\">Pour le forfait</label><select id=\"r-forfait\"></select></div>\n    <div class=\"two\"><div class=\"field\"><label for=\"r-date\">Date</label><input id=\"r-date\" type=\"date\" value=\"" +
+
+
+  esc(x.date) + "\"></div>\n      <div class=\"field\"><label for=\"r-cat\">Cat\xE9gorie</label><select id=\"r-cat\">" +
+  opts(CATEGORIES, x.categorie) + "</select></div></div>\n    <div class=\"field\"><label for=\"r-lib\">D\xE9tail</label><input id=\"r-lib\" value=\"" +
+  esc(x.libelle) + "\" placeholder=\"ex. solde du forfait, 2 bo\xEEtes saumon\u2026\"></div>\n    <div class=\"three\"><div class=\"field\"><label for=\"r-mt\">Montant (\u20AC)</label><input id=\"r-mt\" type=\"number\" inputmode=\"decimal\" value=\"" +
+  esc(x.montant) + "\"></div>\n      <div class=\"field\"><label for=\"r-mode\">Paiement</label><select id=\"r-mode\"><option value=\"\">\xC0 pr\xE9ciser</option>" +
+  opts(MODES, x.mode) + "</select></div>\n      <div class=\"field\"><label for=\"r-chq\">N\xB0 de ch\xE8que</label><input id=\"r-chq\" value=\"" +
+  esc(x.cheques) + "\"></div></div>\n    <div class=\"field\"><label for=\"r-note\">Remarque</label><input id=\"r-note\" value=\"" +
+  esc(x.note) + "\"></div>\n    <div class=\"acts\"><button type=\"button\" class=\"btn primary block\" data-a=\"ok\">Enregistrer</button>\n      " + (
+
+  r ? '<button type="button" class="btn block" data-a="del" style="color:var(--red)">Supprimer cette recette</button>' : '') + "\n      <button type=\"button\" class=\"btn ghost block\" data-close>Retour</button></div>",
+  (m) => {
+    const v = (k) => m.querySelector('#r-' + k).value.trim();
+    const drawDog = () => {
+      const d = I.chiens[x.chienId];
+      m.querySelector('#r-dog').innerHTML = d ? "<div class=\"sel\"><div class=\"top\"><b>" + esc(d.nom) + " <span>" + esc(clientOfDog(d).nom) + "</span></b><button type=\"button\" class=\"x\" id=\"r-undog\">Retirer</button></div></div>" : '';
+      m.querySelector('#r-pk').hidden = !!d;
+      if (d) m.querySelector('#r-undog').addEventListener('click', () => {x.chienId = '';x.clientId = '';x.forfaitId = '';drawDog();});
+      const fs = d ? forfaitsOf(d.id) : [];
+      m.querySelector('#r-fbox').hidden = !fs.length || v('cat') !== 'Forfait';
+      m.querySelector('#r-forfait').innerHTML = '<option value="">Aucun</option>' + fs.slice().reverse().map((f) => "<option value=\"" + f.id + "\" " + (f.id === x.forfaitId ? 'selected' : '') + ">" + f.nbCours + " cours " + esc((f.libelle || '').toLowerCase()) + " du " + esc(fdate(f.date)) + "</option>").join('');
+    };
+    dogPicker(m.querySelector('#r-pk'), () => [], (id) => {
+      x.chienId = id;x.clientId = I.chiens[id].clientId;
+      const st = dogStats(id);x.forfaitId = st.cur ? st.cur.f.id : '';
+      if (st.fs.length && m.querySelector('#r-cat').value === 'Friandises' && !r) m.querySelector('#r-cat').value = 'Forfait';
+      drawDog();
+    }, 'Tape le nom du chien…');
+    m.querySelector('#r-cat').addEventListener('change', drawDog);
+    m.querySelector('#r-forfait').addEventListener('change', (e) => {x.forfaitId = e.target.value;});
+    drawDog();
+    m.querySelector('[data-a="ok"]').addEventListener('click', (e) => {
+      if (!v('date') || !(Number(v('mt')) > 0)) return toast('Indique la date et le montant.');
+      const fId = v('cat') === 'Forfait' ? x.forfaitId : '';
+      const f = forfaitsOf(x.chienId).find((y) => y.id === fId);
+      const libelle = v('lib') || (f ? 'Paiement forfait ' + f.nbCours + ' cours ' + (f.libelle || '').toLowerCase() : v('cat'));
+      e.target.disabled = true;
+      S.periode = periodeOf(v('date')).key;
+      commit({ Recettes: [Object.assign({}, x, { forfaitId: fId, date: v('date'), categorie: v('cat'), libelle, montant: v('mt'), mode: v('mode'), cheques: v('chq'), note: v('note') })] }, null, 'Paiement enregistré');
+    });
+    const del = m.querySelector('[data-a="del"]');
+    if (del) confirmIn(del, 'Appuie encore pour supprimer', () => commit(null, { Recettes: [x.id] }, 'Recette supprimée'));
+  });
+}
+
+/* ============ Mise à jour de l'appli ============ */
+function majDispo() {
+  const v = S.version;
+  return !!(v && v.derniere && v.derniere.version && v.actuelle !== 'démo' && v.derniere.version > v.actuelle);
+}
+function verifierVersion() {
+  return call('infoVersion').then((v) => {S.version = v;if (!document.getElementById('modal').innerHTML && S.view !== 'ajouter') render();}).catch(() => {});
+}
+function majAppli(btn) {
+  if (!majDispo()) {
+    btn.disabled = true;btn.textContent = 'Recherche…';
+    return verifierVersion().then(() => {if (!majDispo()) toast('L’appli est déjà à jour.');render();});
+  }
+  btn.disabled = true;btn.textContent = 'Mise à jour en cours… (environ 30 secondes)';
+  document.getElementById('busy').hidden = false;
+  call('mettreAJour').then((r) => {
+    openModal("<div><h3>C\u2019est \xE0 jour \u2713</h3><div class=\"sub\">La version " + esc(r.version) + " est install\xE9e. Recharge l\u2019appli pour l\u2019utiliser.</div></div>\n      <div class=\"acts\"><a class=\"btn primary block\" href=\"" +
+    esc(r.url) + "\" target=\"_top\">Recharger l\u2019appli</a></div>");
+  }).catch((e) => {
+    openModal("<div><h3>Mise \xE0 jour impossible</h3><div class=\"sub\">" + esc(e && e.message || 'Erreur inconnue.') + "</div></div>\n      <div class=\"acts\"><button type=\"button\" class=\"btn block\" data-close>Fermer</button></div>"
+    );
+    btn.disabled = false;btn.textContent = 'Mettre à jour l’appli';
+  }).finally(() => {document.getElementById('busy').hidden = true;});
+}
+
+/* ============ Démarrage ============ */
+if (!IS_GAS) document.getElementById('demo').hidden = false;
+function load(first) {
+  return call('getData').then((d) => {
+    setData(d);
+    if (first || S.view !== 'ajouter' && !document.getElementById('modal').innerHTML) render();
+  }).catch((e) => {
+    if (first) appEl.innerHTML = "<div class=\"loading\">Impossible de charger l'agenda.<br>" + esc(e && e.message || '') + "<br><br><button class=\"btn\" onclick=\"load(true)\">R\xE9essayer</button></div>";
+  });
+}
+render();
+load(true).then(verifierVersion);
+// Si Google ne répond pas, on explique quoi faire au lieu de rester bloqué
+setTimeout(() => {
+  if (S.data) return;
+  appEl.innerHTML = "<div class=\"loading\" style=\"text-align:left;max-width:520px;margin:0 auto\">\n    <h2 style=\"margin-bottom:10px\">Le chargement est anormalement long</h2>\n    <p>1. Si plusieurs comptes Google sont connect\xE9s dans ce navigateur, ouvre le lien dans une <b>fen\xEAtre de navigation priv\xE9e</b> avec uniquement le compte de l'agenda.</p>\n    <p>2. Sinon, attends une minute puis r\xE9essaie : Google est parfois lent au premier d\xE9marrage.</p>\n    <button class=\"btn primary\" onclick=\"location.reload()\">R\xE9essayer</button></div>";
+
+
+
+
+}, 25000);
+// Rafraîchit en revenant sur l'appli (ex. après un changement dans Google Agenda), et les statuts chaque minute
+document.addEventListener('visibilitychange', () => {if (!document.hidden && S.data && S.view !== 'ajouter' && !document.getElementById('modal').innerHTML) load(false);});
+setInterval(() => {if (S.data && S.view !== 'ajouter' && !document.getElementById('modal').innerHTML && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) {reindex();render();}}, 60000);
+</script>
+</body>
+</html>
